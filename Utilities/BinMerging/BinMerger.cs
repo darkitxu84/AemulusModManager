@@ -999,6 +999,7 @@ namespace AemulusModManager
 
         public static void LoadCheats(List<string> mods, string cheatsDir)
         {
+            List<string> allCheatFiles = new List<string>();
             foreach (string dir in mods)
             {
                 Utilities.ParallelLogger.Log($"[INFO] Searching for cheats in {dir}...");
@@ -1008,11 +1009,32 @@ namespace AemulusModManager
                     continue;
                 }
                 // Copy over cheats
-                foreach (var cheat in Directory.GetFiles($@"{dir}\cheats", "*.pnach", SearchOption.AllDirectories))
+
+                allCheatFiles.AddRange(Directory.GetFiles($@"{dir}\cheats", "*.pnach", SearchOption.AllDirectories));
+            }
+
+            string mergedFile = "gametitle=Shin Megami Tensei: Persona 3 FES (U)(SLUS-21621)\n";
+
+            foreach (var cheat in allCheatFiles)
+            {
+                Utilities.ParallelLogger.Log($"[INFO] Cheat found: {cheat}");
+                List<string> lines = File.ReadAllLines(cheat).ToList();
+                bool hasName = false;
+
+                foreach (var line in lines)
                 {
-                    File.Copy(cheat, $@"{cheatsDir}\{Path.GetFileNameWithoutExtension(cheat)}_aem.pnach", true);
-                    Utilities.ParallelLogger.Log($"[INFO] Copied over {Path.GetFileNameWithoutExtension(cheat)}_aem.pnach to {cheatsDir}");
+                    if (line.Contains("gametitle")) lines.Remove(line);
+                    if (line.StartsWith('[')) hasName = true;
                 }
+               
+                if (!hasName)
+                {
+                    string currentFilename = Path.GetFileNameWithoutExtension(cheat);
+                    mergedFile += $"\n[{currentFilename}]\n";
+                }
+
+                mergedFile += String.Join("\n", lines) + "\n";
+                File.WriteAllText($@"{cheatsDir}\SLUS-21621_aem.pnach", mergedFile);
             }
         }
         public static void LoadCheatsWS(List<string> mods, string cheatsDir)
