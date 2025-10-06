@@ -2600,7 +2600,7 @@ namespace AemulusModManager
                         if (game == "Persona 3 FES" && packages.Exists(x => Directory.Exists($@"{x}\cheats")))
                         {
                             if (config.p3fConfig.cheatsPath != null && Directory.Exists(config.p3fConfig.cheatsPath))
-                                binMerge.LoadCheats(packages, config.p3fConfig.cheatsPath);
+                                binMerge.LoadP3FCheats(packages, config.p3fConfig.cheatsPath, config.p3fConfig.usePnachNewFormat);
                             else
                                 Utilities.ParallelLogger.Log($"[ERROR] Please set up Cheats Path in config to copy over cheats");
                         }

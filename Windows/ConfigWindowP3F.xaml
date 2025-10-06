@@ -53,8 +53,12 @@
         <Button Height="20" Width="60" Content="Browse" Name="ELFButton" Click="SetupELFShortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="7" Grid.Column="3"/>
         <Button Height="20" Width="60" Content="Browse" Name="PCSX2Button" Click="SetupPCSX2Shortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="8" Grid.Column="3"/>
 
-        <CheckBox Name="AdvancedLaunchOptions" Grid.Row="9" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Checked="AdvancedLaunchOptionsChecked" Unchecked="AdvancedLaunchOptionsUnchecked">
+        <CheckBox Name="AdvancedLaunchOptions" Grid.Row="9" Grid.Column="2" VerticalAlignment="Center" Checked="AdvancedLaunchOptionsChecked" Unchecked="AdvancedLaunchOptionsUnchecked" Grid.ColumnSpan="2" Margin="246,0,55,0">
             <TextBlock Text="Prompt for Extra Options when Launching" Foreground="White" FontSize="13"/>
+        </CheckBox>
+
+        <CheckBox Name="UsePNACHNewFormat" Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Checked="UsePnachNewFormatChecked" Unchecked="UsePnachNewFormatUnchecked" Grid.ColumnSpan="2" Margin="55,0,0,0">
+            <TextBlock Text="Use Pnach 2.0 Format (for PCSX2 2.0+)" Foreground="White" FontSize="13"/>
         </CheckBox>
 
         <Grid Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3">

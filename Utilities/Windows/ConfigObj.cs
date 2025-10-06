@@ -116,6 +116,7 @@ namespace AemulusModManager
         public bool updatesEnabled { get; set; } = true;
         public string loadout { get; set; }
         public string lastUnpacked { get; set; }
+        public bool usePnachNewFormat { get; set; } = false;
 
     }
     public class ConfigP3P

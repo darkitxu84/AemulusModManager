@@ -997,7 +997,7 @@ namespace AemulusModManager
             }
         }
 
-        public static void LoadCheats(List<string> mods, string cheatsDir)
+        public static void LoadP3FCheats(List<string> mods, string cheatsDir, bool usePnachNewFormat)
         {
             List<string> allCheatFiles = new List<string>();
             foreach (string dir in mods)
@@ -1013,18 +1013,34 @@ namespace AemulusModManager
                 allCheatFiles.AddRange(Directory.GetFiles($@"{dir}\cheats", "*.pnach", SearchOption.AllDirectories));
             }
 
+            if (!usePnachNewFormat)
+            {
+                foreach (var cheat in allCheatFiles)
+                {
+                    File.Copy(cheat, $@"{cheatsDir}\{Path.GetFileNameWithoutExtension(cheat)}_aem.pnach", true);
+                    Utilities.ParallelLogger.Log($"[INFO] Copied over {Path.GetFileNameWithoutExtension(cheat)}_aem.pnach to {cheatsDir}");
+                }
+                return;
+            }
+
+            // We need to merge all the cheats into one cheat (patch) file if we're using Pnach 2.0
+            // For more info check:
+            // https://forums.pcsx2.net/Thread-Sticky-Important-Patching-Notes-1-7-4546-Pnach-2-0
+
             string mergedFile = "gametitle=Shin Megami Tensei: Persona 3 FES (U)(SLUS-21621)\n";
 
             foreach (var cheat in allCheatFiles)
             {
                 Utilities.ParallelLogger.Log($"[INFO] Cheat found: {cheat}");
                 List<string> lines = File.ReadAllLines(cheat).ToList();
+
+                // There are cheat files that don't have a name, so we use the file name instead
                 bool hasName = false;
 
                 foreach (var line in lines)
                 {
                     if (line.Contains("gametitle")) lines.Remove(line);
-                    if (line.StartsWith('[')) hasName = true;
+                    if (line.StartsWith('[') && line.EndsWith(']')) hasName = true;
                 }
                
                 if (!hasName)

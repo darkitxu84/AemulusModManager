@@ -180,6 +180,18 @@ namespace AemulusModManager
             main.p3fConfig.advancedLaunchOptions = false;
             main.updateConfig();
         }
+        private void UsePnachNewFormatChecked(object sender, RoutedEventArgs e)
+        {
+            main.p3fConfig.usePnachNewFormat = true;
+            main.updateConfig();
+            Utilities.ParallelLogger.Log($"[INFO] Using Pnach 2.0 for cheats Format for cheats");
+        }
+        private void UsePnachNewFormatUnchecked(object sender, RoutedEventArgs e)
+        {
+            main.p3fConfig.usePnachNewFormat = false;
+            main.updateConfig();
+            Utilities.ParallelLogger.Log($"[INFO] Using old Pnach Format for cheats");
+        }
 
         private void onClose(object sender, CancelEventArgs e)
         {
