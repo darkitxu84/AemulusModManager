@@ -1250,7 +1250,7 @@ namespace AemulusModManager
                     }
                     else
                     {
-                        startInfo.Arguments = "-nogui";
+                        startInfo.Arguments = "";
                         if (tempElfPath != null)
                         {
                             if (!File.Exists(tempElfPath))

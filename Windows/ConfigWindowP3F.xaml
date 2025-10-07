@@ -57,7 +57,7 @@
             <TextBlock Text="Prompt for Extra Options when Launching" Foreground="White" FontSize="13"/>
         </CheckBox>
 
-        <CheckBox Name="UsePNACHNewFormat" Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Checked="UsePnachNewFormatChecked" Unchecked="UsePnachNewFormatUnchecked" Grid.ColumnSpan="2" Margin="55,0,0,0">
+        <CheckBox Name="UsePnachNewFormatBox" Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Checked="UsePnachNewFormatChecked" Unchecked="UsePnachNewFormatUnchecked" Grid.ColumnSpan="2" Margin="55,0,0,0">
             <TextBlock Text="Use Pnach 2.0 Format (for PCSX2 2.0+)" Foreground="White" FontSize="13"/>
         </CheckBox>
 

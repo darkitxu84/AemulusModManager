@@ -41,6 +41,7 @@ namespace AemulusModManager
             DeleteBox.IsChecked = main.config.p3fConfig.deleteOldVersions;
             UpdateAllBox.IsChecked = main.config.p3fConfig.updateAll;
             UpdateBox.IsChecked = main.config.p3fConfig.updatesEnabled;
+            UsePnachNewFormatBox.IsChecked = main.config.p3fConfig.usePnachNewFormat;
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
 
@@ -184,13 +185,13 @@ namespace AemulusModManager
         {
             main.p3fConfig.usePnachNewFormat = true;
             main.updateConfig();
-            Utilities.ParallelLogger.Log($"[INFO] Using Pnach 2.0 for cheats Format for cheats");
+            Utilities.ParallelLogger.Log($"[INFO] Using Pnach 2.0 for cheats");
         }
         private void UsePnachNewFormatUnchecked(object sender, RoutedEventArgs e)
         {
             main.p3fConfig.usePnachNewFormat = false;
             main.updateConfig();
-            Utilities.ParallelLogger.Log($"[INFO] Using old Pnach Format for cheats");
+            Utilities.ParallelLogger.Log($"[INFO] Using old Pnach format for cheats");
         }
 
         private void onClose(object sender, CancelEventArgs e)
