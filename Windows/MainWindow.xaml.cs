@@ -1216,6 +1216,7 @@ namespace AemulusModManager
                         if (tempElfPath == null && tempGamePath == null)
                         {
                             tempElfPath = elfPath;
+                            tempGamePath = gamePath;
                         }
                     }
                     else
@@ -1223,55 +1224,24 @@ namespace AemulusModManager
                         // If the user doesn't want to be prompted for extra options,
                         // just automatically launch the ELF selected in the config.
                         tempElfPath = elfPath;
+                        tempGamePath = gamePath;
                     }
 
-                    if (Path.GetFileName(launcherPath).Equals("pcsx2.exe", StringComparison.InvariantCultureIgnoreCase))
+                    if (!File.Exists(tempElfPath))
                     {
-                        // Build the PCSX2 launch arguments based on what we've chosen/what's non-null
-                        startInfo.Arguments = "--nogui";
-                        if (tempElfPath != null)
-                        {
-                            if (!File.Exists(tempElfPath))
-                            {
-                                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {tempElfPath}. Please correct the file path in config.");
-                                return;
-                            }
-                            startInfo.Arguments += $" --elf=\"{tempElfPath}\"";
-                        }
-                        if (tempGamePath != null)
-                        {
-                            if (!File.Exists(tempGamePath))
-                            {
-                                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {tempGamePath}. Please correct the file path in config.");
-                                return;
-                            }
-                            startInfo.Arguments += $" \"{tempGamePath}\"";
-                        }
+                        Utilities.ParallelLogger.Log($"[ERROR] Couldn't find ELF file: {tempElfPath}. Please correct the file path in config.");
+                        return;
                     }
-                    else
+                    if (!File.Exists(tempGamePath))
                     {
-                        startInfo.Arguments = "";
-                        if (tempElfPath != null)
-                        {
-                            if (!File.Exists(tempElfPath))
-                            {
-                                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {tempElfPath}. Please correct the file path in config.");
-                                return;
-                            }
-                            startInfo.Arguments += $" -elf \"{tempElfPath}\"";
-                        }
-                        startInfo.Arguments += " -fastboot";
-                        tempGamePath = gamePath;
-                        if (tempGamePath != null)
-                        {
-                            if (!File.Exists(tempGamePath))
-                            {
-                                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {tempGamePath}. Please correct the file path in config.");
-                                return;
-                            }
-                            startInfo.Arguments += $" -- \"{tempGamePath}\"";
-                        }
+                        Utilities.ParallelLogger.Log($"[ERROR] Couldn't find game ISO: {tempGamePath}. Please correct the file path in config.");
+                        return;
                     }
+
+                    startInfo.Arguments = "";
+                    startInfo.Arguments += $" -elf \"{tempElfPath}\"";
+                    startInfo.Arguments += " -fastboot";
+                    startInfo.Arguments += $" -- \"{tempGamePath}\"";
                 }
                 else if (game == "Persona 5")
                 {
