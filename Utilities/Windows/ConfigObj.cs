@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using AemulusModManager.Utilities.Windows;
+using AemulusModManager.Windows;
 
 namespace AemulusModManager
 {
@@ -17,8 +23,13 @@ namespace AemulusModManager
         public string cpkLang { get; set; }
     }
 
-    public class AemulusConfig
+    public sealed class AemulusConfig
     {
+
+        private static AemulusConfig _instance = null;
+        private AemulusConfig() { }
+        private XmlSerializer xs;
+
         public string game { get; set; }
         public bool bottomUpPriority { get; set; }
         public bool updateAemulus { get; set; } = true;
@@ -43,192 +54,147 @@ namespace AemulusModManager
         public double? Height { get; set; }
         public double? Width { get; set; }
         public bool Maximized { get; set; }
-    }
 
-    public class ConfigP4G
+        public static AemulusConfig Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new AemulusConfig();
+                }
+                return _instance;
+            }
+        }
+
+        public void InitConfig()
+        {
+            _instance.p3fConfig = new ConfigP3F();
+            _instance.p3pConfig = new ConfigP3P();
+            _instance.p4gConfig = new ConfigP4G();
+            _instance.p4gVitaConfig = new ConfigP4GVita();
+            _instance.p5Config = new ConfigP5();
+            _instance.p5rConfig = new ConfigP5R();
+            _instance.p5rSwitchConfig = new ConfigP5RSwitch();
+            _instance.p5sConfig = new ConfigP5S();
+            _instance.pqConfig = new ConfigPQ();
+            _instance.pq2Config = new ConfigPQ2();
+            _instance.p1pspConfig = new ConfigP1PSP();
+
+            xs = new XmlSerializer(typeof(AemulusConfig));
+        }
+        public void LoadConfig()
+        {
+
+        }
+
+        public void UpdateConfig()
+        {
+            using (FileStream streamWriter = File.Create($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Config\Config.xml"))
+            {
+                try
+                {
+                    xs.Serialize(streamWriter, _instance);
+                }
+                catch (Exception ex)
+                {
+                    Utilities.ParallelLogger.Log($@"[ERROR] Couldn't update Config\Config.xml ({ex.Message})");
+                }
+            }
+        }
+    }
+    // there are a lot of attributes that are common in many configs
+    public class DefaultConfig
     {
         public string modDir { get; set; }
+        public bool deleteOldVersions { get; set; }
+        public bool buildWarning { get; set; } = true;
+        public bool buildFinished { get; set; } = true;
+        public bool updateConfirm { get; set; } = true;
+        public bool updateChangelog { get; set; } = true;
+        public bool updateAll { get; set; } = true;
+        public bool updatesEnabled { get; set; } = true;
+        public string loadout { get; set; }
+        public string lastUnpacked { get; set; }
+
+    }
+
+    public class ConfigP4G : DefaultConfig
+    {
         public string exePath { get; set; }
         public string reloadedPath { get; set; }
         public bool emptySND { get; set; }
         public bool useCpk { get; set; }
         public string cpkLang { get; set; }
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
-    }
-    public class ConfigP4GVita
-    {
-        public string modDir { get; set; }
-        public string cpkName { get; set; } = "m0.cpk";
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
 
-    public class ConfigP1PSP
+    public class ConfigP4GVita : DefaultConfig
     {
-        public string modDir { get; set; }
+        public string cpkName { get; set; } = "m0.cpk";
+    }
+
+    public class ConfigP1PSP : DefaultConfig
+    {
         public string texturesPath { get; set; }
         public string cheatsPath { get; set; }
         public string isoPath { get; set; }
         public string launcherPath { get; set; }
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
         public bool createIso { get; set; } = false;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
 
-    public class ConfigP3F
+    public class ConfigP3F : DefaultConfig
     {
-        public string modDir { get; set; }
         public string isoPath { get; set; }
         public string elfPath { get; set; }
         public string launcherPath { get; set; }
         public string cheatsPath { get; set; }
         public string cheatsWSPath { get; set; }
         public string texturesPath { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
         public bool advancedLaunchOptions { get; set; }
-        public bool deleteOldVersions { get; set; }
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
         public bool usePnachNewFormat { get; set; } = false;
 
     }
-    public class ConfigP3P
+    public class ConfigP3P : DefaultConfig
     {
-        public string modDir { get; set; }
         public string texturesPath { get; set; }
         public string cheatsPath { get; set; }
         public string isoPath { get; set; }
         public string cpkName { get; set; } = "mod.cpk";
         public string launcherPath { get; set; }
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
 
-    public class ConfigP5
+    public class ConfigP5 : DefaultConfig
     {
-        public string modDir { get; set; }
         public string gamePath { get; set; }
         public string launcherPath { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool deleteOldVersions { get; set; }
-        public bool updatesEnabled { get; set; } = true;
-        public string CpkName { get; set; } = "mod";
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
-
+        public string cpkName { get; set; } = "mod";
     }
-    public class ConfigP5R
+    public class ConfigP5R : DefaultConfig
     {
-        public string modDir { get; set; }
         public string cpkName { get; set; } = "mod.cpk";
         public string language { get; set; } = "English";
         public string version { get; set; } = "1.02";
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
-    public class ConfigP5RSwitch
+    public class ConfigP5RSwitch : DefaultConfig
     {
-        public string modDir { get; set; }
         public string gamePath { get; set; }
         public string launcherPath { get; set; }
         public string language { get; set; } = "English";
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
-    public class ConfigPQ2
+    public class ConfigPQ2 : DefaultConfig
     {
-        public string modDir { get; set; }
         public string ROMPath { get; set; }
         public string launcherPath { get; set; }
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
-    public class ConfigPQ
+    public class ConfigPQ : DefaultConfig
     {
-        public string modDir { get; set; }
         public string ROMPath { get; set; }
         public string launcherPath { get; set; }
-        public bool deleteOldVersions { get; set; }
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
-        public string lastUnpacked { get; set; }
     }
 
-    public class ConfigP5S
+    public class ConfigP5S : DefaultConfig
     {
-        public string modDir { get; set; } = "";
-        public bool buildWarning { get; set; } = true;
-        public bool buildFinished { get; set; } = true;
-        public bool updateConfirm { get; set; } = true;
-        public bool updateChangelog { get; set; } = true;
-        public bool updateAll { get; set; } = true;
-        public bool deleteOldVersions { get; set; }
-        public bool updatesEnabled { get; set; } = true;
-        public string loadout { get; set; }
+
     }
     public class Packages
     {

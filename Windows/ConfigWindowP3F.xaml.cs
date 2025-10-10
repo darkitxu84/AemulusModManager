@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using AemulusModManager.Utilities;
+using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -43,7 +44,7 @@ namespace AemulusModManager
 
         private void modDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = ConfigHelper.SelectFolder("Select output folder");
+            var directory = Filesystem.SelectFolder("Select output folder");
             if (directory == null) return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
@@ -58,7 +59,7 @@ namespace AemulusModManager
         }
         private void cheatsDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = ConfigHelper.SelectFolder("Select cheats folder");
+            var directory = Filesystem.SelectFolder("Select cheats folder");
             if (directory == null) return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting cheats folder to {directory}");
@@ -68,7 +69,7 @@ namespace AemulusModManager
         }
         private void cheatsWSDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = ConfigHelper.SelectFolder("Select cheats_ws folder");
+            var directory = Filesystem.SelectFolder("Select cheats_ws folder");
             if (directory == null) return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting cheats_ws folder to {directory}");
@@ -79,7 +80,7 @@ namespace AemulusModManager
         }
         private void texturesDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = ConfigHelper.SelectFolder("Select textures folder");
+            var directory = Filesystem.SelectFolder("Select textures folder");
             if (directory == null) return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting textures folder to {directory}");
@@ -196,7 +197,7 @@ namespace AemulusModManager
 
         private void SetupISOShortcut(object sender, RoutedEventArgs e)
         {
-            string p3fIso = ConfigHelper.SelectFile("Select Persona 3 FES ISO", ".iso");
+            string p3fIso = Filesystem.SelectFile("Select Persona 3 FES ISO", ".iso");
             if (p3fIso == null) return;
 
             main.gamePath = p3fIso;
@@ -207,7 +208,7 @@ namespace AemulusModManager
 
         private void SetupPCSX2Shortcut(object sender, RoutedEventArgs e)
         {
-            string pcsx2Exe = ConfigHelper.SelectFile("Select pcsx2.exe", ".exe", mustContain: "pcsx2");
+            string pcsx2Exe = Filesystem.SelectFile("Select pcsx2.exe", ".exe", mustContain: "pcsx2");
             if (pcsx2Exe == null) return;
             
             main.launcherPath = pcsx2Exe;
@@ -218,7 +219,7 @@ namespace AemulusModManager
 
         private void SetupELFShortcut(object sender, RoutedEventArgs e)
         {
-            string elf = ConfigHelper.SelectFile("Select ELF/SLUS", ".elf");
+            string elf = Filesystem.SelectFile("Select ELF/SLUS", ".elf");
             if (elf == null) return;
 
             try
@@ -251,7 +252,7 @@ namespace AemulusModManager
         {
             if (main.gamePath == null || main.gamePath == "")
             {
-                string selectedPath = ConfigHelper.SelectFile("Select P3F's iso to unpack", ".iso");
+                string selectedPath = Filesystem.SelectFile("Select P3F's iso to unpack", ".iso");
                 if (selectedPath == null)
                 { 
                     Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");

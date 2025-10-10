@@ -6,23 +6,29 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace AemulusModManager
+namespace AemulusModManager.Utilities.Windows
 {
-    public static class ConfigHelper
+    public static class Filesystem
     {
         public static string SelectFile(string title, string extension, string mustContain = null)
         {
             var typesMapping = new Dictionary<string, string>
             {
-                [".iso"] = "ISO Image",
+                [".iso"] = "ISO Image (Disk)",
                 [".elf"] = "PS2 Executable",
-                [".exe"] = "Application"
+                [".exe"] = "Application",
+                [".ini"] = "INI File",
+                [".bin"] = "EBOOT",
+                [".cpk"] = "File Container"
             };
             var extensionTitleMapping = new Dictionary<string, string>
             {
                 [".iso"] = "ISO",
                 [".elf"] = "ELF/SLUS",
-                [".exe"] = "EXE"
+                [".exe"] = "EXE",
+                [".ini"] = "INI",
+                [".cpk"] = "CPK",
+                [".bin"] = "BIN"
             };
 
             string type = typesMapping[extension];
@@ -35,14 +41,14 @@ namespace AemulusModManager
             // If the user does not select a file we return null
             if (openFile.ShowDialog() != CommonFileDialogResult.Ok)
             {
-                Utilities.ParallelLogger.Log($"[WARNING] No {extensionTitleMapping[extension]} file specified.");
+                ParallelLogger.Log($"[WARNING] No {extensionTitleMapping[extension]} file specified.");
                 return null;
             }
             if (mustContain != null)
             {
                 if (!Path.GetFileName(openFile.FileName).ToLower().Contains(mustContain))
                 {
-                    Utilities.ParallelLogger.Log($"[ERROR] Invalid {extensionTitleMapping[extension]}");
+                    ParallelLogger.Log($"[ERROR] Invalid {extensionTitleMapping[extension]}. The file must contain: {mustContain}");
                     return null;
                 }
 
@@ -62,7 +68,7 @@ namespace AemulusModManager
             openFolder.Title = title;
             if (openFolder.ShowDialog() != CommonFileDialogResult.Ok)
             {
-                Utilities.ParallelLogger.Log("[WARNING] No folder specified.");
+                ParallelLogger.Log("[WARNING] No folder specified.");
                 return null;
             }
 
