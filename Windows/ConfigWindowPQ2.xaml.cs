@@ -171,25 +171,6 @@ namespace AemulusModManager
             CitraTextbox.Text = emuExe;
         }
 
-        private string selectExe(string title, string extension)
-        {
-            string type = "Application";
-            if (extension == "*.3ds;*.app;*.cxi")
-                type = "ROM";
-            if (extension == "*.cpk")
-                type = "File Container";
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter(type, extension));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
-        }
-
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
             string selectedPath = FilePicker.SelectFile("Select PQ2 data.cpk to unpack", Extensions.Cpk);
