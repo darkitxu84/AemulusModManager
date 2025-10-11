@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -21,14 +22,15 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
+            OutputTextbox.Text = main.modPath ?? "";
+
             BuildFinishedBox.IsChecked = main.config.p4gVitaConfig.buildFinished;
             BuildWarningBox.IsChecked = main.config.p4gVitaConfig.buildWarning;
             ChangelogBox.IsChecked = main.config.p4gVitaConfig.updateChangelog;
             DeleteBox.IsChecked = main.config.p4gVitaConfig.deleteOldVersions;
             UpdateAllBox.IsChecked = main.config.p4gVitaConfig.updateAll;
             UpdateBox.IsChecked = main.config.p4gVitaConfig.updatesEnabled;
+
             switch (main.config.p4gVitaConfig.cpkName)
             {
                 case "mod.cpk":
@@ -49,20 +51,23 @@ namespace AemulusModManager
             }
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder();
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p4gVitaConfig.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf5, 0xa8, 0x3d));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p4gVitaConfig.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf5, 0xa8, 0x3d));
+            OutputTextbox.Text = directory;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -76,42 +81,49 @@ namespace AemulusModManager
             main.config.p4gVitaConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p4gVitaConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p4gVitaConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p4gVitaConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p4gVitaConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.p4gVitaConfig.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.p4gVitaConfig.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -128,12 +140,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p4gVitaConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -141,52 +155,15 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = "Select Output Folder";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
-
-        private string selectExe(string title, string extension)
-        {
-            string type = "File Container";
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter(type, $"*{extension}"));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
-        }
-
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            string selectedPath = selectExe("Select P4G Vita data.cpk to unpack", ".cpk");
+            string selectedPath = FilePicker.SelectFile("Select P4G Vita data.cpk to unpack", Extensions.Cpk);
             if (selectedPath == null)
             {
                 Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");
                 return;
             }
+
             main.ModGrid.IsHitTestVisible = false;
             UnpackButton.IsHitTestVisible = false;
             foreach (var button in main.buttons)
@@ -225,6 +202,11 @@ namespace AemulusModManager
                 }
                 handled = false;
             }
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

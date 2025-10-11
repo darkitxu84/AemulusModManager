@@ -42,10 +42,11 @@ namespace AemulusModManager
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
 
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = Filesystem.SelectFolder("Select output folder");
-            if (directory == null) return;
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null) 
+                return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
             main.config.p3fConfig.modDir = directory;
@@ -57,20 +58,24 @@ namespace AemulusModManager
             OutputTextbox.Text = directory;
             
         }
-        private void cheatsDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void CheatsDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = Filesystem.SelectFolder("Select cheats folder");
-            if (directory == null) return;
+            var directory = FilePicker.SelectFolder("Select cheats folder");
+            if (directory == null) 
+                return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting cheats folder to {directory}");
             main.config.p3fConfig.cheatsPath = directory;
             main.updateConfig();
             CheatsTextbox.Text = directory;
         }
-        private void cheatsWSDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void CheatsWSDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = Filesystem.SelectFolder("Select cheats_ws folder");
-            if (directory == null) return;
+            var directory = FilePicker.SelectFolder("Select cheats_ws folder");
+            if (directory == null) 
+                return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting cheats_ws folder to {directory}");
             main.config.p3fConfig.cheatsWSPath = directory;
@@ -78,16 +83,19 @@ namespace AemulusModManager
             CheatsWSTextbox.Text = directory;
             
         }
-        private void texturesDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void TexturesDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = Filesystem.SelectFolder("Select textures folder");
-            if (directory == null) return;
+            var directory = FilePicker.SelectFolder("Select textures folder");
+            if (directory == null) 
+                return;
             
             Utilities.ParallelLogger.Log($"[INFO] Setting textures folder to {directory}");
             main.config.p3fConfig.texturesPath = directory;
             main.updateConfig();
             TexturesTextbox.Text = directory;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -101,30 +109,35 @@ namespace AemulusModManager
             main.config.p3fConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p3fConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p3fConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p3fConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p3fConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
@@ -138,6 +151,7 @@ namespace AemulusModManager
             main.config.p3fConfig.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -154,12 +168,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p3fConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -172,17 +188,20 @@ namespace AemulusModManager
             main.p3fConfig.advancedLaunchOptions = true;
             main.updateConfig();
         }
+
         private void AdvancedLaunchOptionsUnchecked(object sender, RoutedEventArgs e)
         {
             main.p3fConfig.advancedLaunchOptions = false;
             main.updateConfig();
         }
+
         private void UsePnachNewFormatChecked(object sender, RoutedEventArgs e)
         {
             main.p3fConfig.usePnachNewFormat = true;
             main.updateConfig();
             Utilities.ParallelLogger.Log($"[INFO] Using Pnach 2.0 for cheats");
         }
+
         private void UsePnachNewFormatUnchecked(object sender, RoutedEventArgs e)
         {
             main.p3fConfig.usePnachNewFormat = false;
@@ -190,15 +209,11 @@ namespace AemulusModManager
             Utilities.ParallelLogger.Log($"[INFO] Using old Pnach format for cheats");
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
         private void SetupISOShortcut(object sender, RoutedEventArgs e)
         {
-            string p3fIso = Filesystem.SelectFile("Select Persona 3 FES ISO", ".iso");
-            if (p3fIso == null) return;
+            string p3fIso = FilePicker.SelectFile("Select Persona 3 FES ISO", Extensions.Ps2Iso);
+            if (p3fIso == null) 
+                return;
 
             main.gamePath = p3fIso;
             main.config.p3fConfig.isoPath = p3fIso;
@@ -208,8 +223,9 @@ namespace AemulusModManager
 
         private void SetupPCSX2Shortcut(object sender, RoutedEventArgs e)
         {
-            string pcsx2Exe = Filesystem.SelectFile("Select pcsx2.exe", ".exe", mustContain: "pcsx2");
-            if (pcsx2Exe == null) return;
+            string pcsx2Exe = FilePicker.SelectFile("Select pcsx2.exe", Extensions.Exe, mustContain: "pcsx2");
+            if (pcsx2Exe == null) 
+                return;
             
             main.launcherPath = pcsx2Exe;
             main.config.p3fConfig.launcherPath = pcsx2Exe;
@@ -219,13 +235,14 @@ namespace AemulusModManager
 
         private void SetupELFShortcut(object sender, RoutedEventArgs e)
         {
-            string elf = Filesystem.SelectFile("Select ELF/SLUS", ".elf");
-            if (elf == null) return;
+            string elfFile = FilePicker.SelectFile("Select ELF/SLUS", Extensions.Elf);
+            if (elfFile == null) 
+                return;
 
             try
             {
                 // Read the first four bytes, verify that they end in "ELF"
-                using BinaryReader reader = new BinaryReader(new FileStream(elf, FileMode.Open));
+                using BinaryReader reader = new BinaryReader(new FileStream(elfFile, FileMode.Open));
                 string magic = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
                 if (!magic.EndsWith("ELF"))
@@ -241,23 +258,24 @@ namespace AemulusModManager
                 return;
             }
 
-            main.elfPath = elf;
-            main.config.p3fConfig.elfPath = elf;
+            main.elfPath = elfFile;
+            main.config.p3fConfig.elfPath = elfFile;
             main.updateConfig();
-            ELFTextbox.Text = elf;
+            ELFTextbox.Text = elfFile;
         }
 
         // Use 7zip on iso
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            if (main.gamePath == null || main.gamePath == "")
+            if (String.IsNullOrEmpty(main.gamePath))
             {
-                string selectedPath = Filesystem.SelectFile("Select P3F's iso to unpack", ".iso");
+                string selectedPath = FilePicker.SelectFile("Select P3F's iso to unpack", Extensions.Ps2Iso);
                 if (selectedPath == null)
                 { 
                     Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");
                     return;
                 }
+
                 main.gamePath = selectedPath;
                 main.config.p3fConfig.isoPath = main.gamePath;
                 main.updateConfig();
@@ -279,6 +297,11 @@ namespace AemulusModManager
         private void NotifBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             NotifBox.SelectedIndex = 0;
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
 
     }

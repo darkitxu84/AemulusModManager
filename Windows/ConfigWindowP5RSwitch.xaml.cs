@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Linq;
+using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -23,18 +24,17 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
-            if (main.gamePath != null)
-                ROMTextbox.Text = main.gamePath;
-            if (main.launcherPath != null)
-                EmulatorTextbox.Text = main.launcherPath;
+            OutputTextbox.Text = main.modPath ?? "";
+            ROMTextbox.Text = main.gamePath ?? "";
+            EmulatorTextbox.Text = main.launcherPath ?? "";
+
             BuildFinishedBox.IsChecked = main.config.p5rSwitchConfig.buildFinished;
             BuildWarningBox.IsChecked = main.config.p5rSwitchConfig.buildWarning;
             ChangelogBox.IsChecked = main.config.p5rSwitchConfig.updateChangelog;
             DeleteBox.IsChecked = main.config.p5rSwitchConfig.deleteOldVersions;
             UpdateAllBox.IsChecked = main.config.p5rSwitchConfig.updateAll;
             UpdateBox.IsChecked = main.config.p5rSwitchConfig.updatesEnabled;
+
             switch (main.config.p5rSwitchConfig.language)
             {
                 case "English":
@@ -55,68 +55,52 @@ namespace AemulusModManager
             }
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder("Select output folder");
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p5rSwitchConfig.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf7, 0x64, 0x84));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
-        }
-        private void SetupROMShortcut(object sender, RoutedEventArgs e)
-        {
-            string p5rRom = selectExe("Select Persona 5 Royal (Switch) ROM", "*.xci;*.nsp");
-            if (p5rRom != null)
-            {
-                main.gamePath = p5rRom;
-                main.config.p5rSwitchConfig.gamePath = p5rRom;
-                main.updateConfig();
-                ROMTextbox.Text = p5rRom;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] No ROM selected.");
-            }
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p5rSwitchConfig.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf7, 0x64, 0x84));
+            OutputTextbox.Text = directory;
         }
 
-        private string selectExe(string title, string extension)
+        private void SetupROMShortcut(object sender, RoutedEventArgs e)
         {
-            string type = "Application";
-            if (extension == "*.xci;*.nsp")
-                type = "ROM";
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter(type, extension));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
+            string p5rRom = FilePicker.SelectFile("Select Persona 5 Royal (Switch) ROM", Extensions.SwitchRom);
+            if (p5rRom == null)
+                return;
+
+            main.gamePath = p5rRom;
+            main.config.p5rSwitchConfig.gamePath = p5rRom;
+            main.updateConfig();
+            ROMTextbox.Text = p5rRom;
         }
 
         private void SetupEmulatorShortcut(object sender, RoutedEventArgs e)
         {
-            string emulatorExe = selectExe("Select Exectuable for Emulator (yuzu.exe or Ryujinx.exe)", "*.exe");
-            if (Path.GetFileName(emulatorExe).ToLowerInvariant() == "yuzu.exe" || Path.GetFileName(emulatorExe).ToLowerInvariant() == "ryujinx.exe")
+            string[] supportedEmulatorsExes = 
             {
-                main.launcherPath = emulatorExe;
-                main.config.p5rSwitchConfig.launcherPath = emulatorExe;
-                main.updateConfig();
-                EmulatorTextbox.Text = emulatorExe;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid exe.");
-            }
+                "yuzu.exe",
+                "ryujinx.exe"
+            };
+            string emulatorExe = FilePicker.SelectFile("Select Exectuable for Emulator", Extensions.Exe, supportedEmulatorsExes);
+            if (emulatorExe == null)
+                return;
+
+            main.launcherPath = emulatorExe;
+            main.config.p5rSwitchConfig.launcherPath = emulatorExe;
+            main.updateConfig();
+            EmulatorTextbox.Text = emulatorExe;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -130,42 +114,49 @@ namespace AemulusModManager
             main.config.p5rSwitchConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p5rSwitchConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p5rSwitchConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p5rSwitchConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p5rSwitchConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.p5rSwitchConfig.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.p5rSwitchConfig.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -182,12 +173,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p5rSwitchConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -195,49 +188,29 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder(string title)
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = title;
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            string selectedPath = openFolder("Select folder with P5R cpks");
-            if (selectedPath != null)
-            {
-                var cpksNeeded = new List<string>();
-                cpksNeeded.Add("ALL_USEU.CPK");
-                cpksNeeded.Add("PATCH1.CPK");
-
-                var cpks = Directory.GetFiles(selectedPath, "*.cpk", SearchOption.TopDirectoryOnly);
-                if (cpksNeeded.Except(cpks.Select(x => Path.GetFileName(x))).Any())
-                {
-                    Utilities.ParallelLogger.Log($"[ERROR] Not all cpks needed (ALL_USEU.CPK and PATCH1.CPK) are found in top directory of {selectedPath}");
-                    return;
-                }
-            }
-            else
+            string selectedPath = FilePicker.SelectFolder("Select folder with P5R cpks");
+            if (selectedPath == null)
             {
                 Utilities.ParallelLogger.Log("[ERROR] No folder chosen");
                 return;
+
             }
+
+            var cpksNeeded = new List<string>()
+            {
+                "ALL_USEU.CPK",
+                "PATCH1.CPK"
+            };
+            var cpks = Directory.GetFiles(selectedPath, "*.cpk", SearchOption.TopDirectoryOnly);
+
+            if (cpksNeeded.Except(cpks.Select(x => Path.GetFileName(x))).Any())
+            {
+                Utilities.ParallelLogger.Log($"[ERROR] Not all cpks needed (ALL_USEU.CPK and PATCH1.CPK) are found in top directory of {selectedPath}");
+                return;
+            }
+
             main.ModGrid.IsHitTestVisible = false;
             UnpackButton.IsHitTestVisible = false;
             foreach (var button in main.buttons)
@@ -276,6 +249,11 @@ namespace AemulusModManager
                 }
                 language_handled = false;
             }
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

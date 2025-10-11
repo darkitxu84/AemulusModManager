@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AemulusModManager"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner"
-        Title="Persona 5 Config" Height="290" Width="600" ResizeMode="NoResize" Background="#121212" Closing="onClose">
+        Title="Persona 5 Config" Height="290" Width="600" ResizeMode="NoResize" Background="#121212" Closing="OnClose">
     <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
@@ -35,7 +35,7 @@
         <TextBox Name="EBOOTTextbox" IsReadOnly="True" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="#202020" BorderBrush="#424242" Foreground="#f2f2f2" Height="20" Grid.Row="4" Grid.Column="2"/>
         <TextBox Name="RPCS3Textbox" IsReadOnly="True" Background="#202020" BorderBrush="#424242" Foreground="#f2f2f2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="20"  Grid.Row="5" Grid.Column="2"/>
         
-        <Button Height="20" Content="Browse" Name="PathButton" Click="modDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="3" Width="60"/>
+        <Button Height="20" Content="Browse" Name="PathButton" Click="ModDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="3" Width="60"/>
         <Button Height="20" Width="60" Content="Browse" Name="EBOOTButton" Click="SetupEBOOTShortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="4" Grid.Column="4"/>
         <Button Height="20" Width="60" Content="Browse" Name="RPCS3Button" Click="SetupRPCS3Shortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="5" Grid.Column="3" />
 

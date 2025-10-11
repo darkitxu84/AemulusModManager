@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -21,12 +22,10 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
-            if (main.gamePath != null)
-                ROMTextbox.Text = main.gamePath;
-            if (main.launcherPath != null)
-                CitraTextbox.Text = main.launcherPath;
+            OutputTextbox.Text = main.modPath ?? "";
+            ROMTextbox.Text = main.gamePath ?? "";
+            CitraTextbox.Text = main.launcherPath ?? "";
+
             BuildFinishedBox.IsChecked = main.config.pq2Config.buildFinished;
             BuildWarningBox.IsChecked = main.config.pq2Config.buildWarning;
             ChangelogBox.IsChecked = main.config.pq2Config.updateChangelog;
@@ -35,20 +34,24 @@ namespace AemulusModManager
             UpdateBox.IsChecked = main.config.pq2Config.updatesEnabled;
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder();
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.pq2Config.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xfb, 0x84, 0x6a));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.pq2Config.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xfb, 0x84, 0x6a));
+            OutputTextbox.Text = directory;
+
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -62,42 +65,49 @@ namespace AemulusModManager
             main.config.pq2Config.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.pq2Config.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.pq2Config.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.pq2Config.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.pq2Config.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.pq2Config.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.pq2Config.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -114,12 +124,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.pq2Config.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -127,61 +139,36 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = "Select Output Folder";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
-
         private void SetupROMShortcut(object sender, RoutedEventArgs e)
         {
-            string pq2Rom = selectExe("Select Persona Q2 ROM", "*.3ds;*.app;*.cxi");
-            if (pq2Rom != null)
-            {
-                main.gamePath = pq2Rom;
-                main.config.pq2Config.ROMPath = pq2Rom;
-                main.updateConfig();
-                ROMTextbox.Text = pq2Rom;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] No ROM selected.");
-            }
+            string pq2Rom = FilePicker.SelectFile("Select Persona Q2 ROM", Extensions.N3dsRom);
+            if (pq2Rom == null)
+                return;
+
+            main.gamePath = pq2Rom;
+            main.config.pq2Config.ROMPath = pq2Rom;
+            main.updateConfig();
+            ROMTextbox.Text = pq2Rom;
         }
 
         private void SetupCitraShortcut(object sender, RoutedEventArgs e)
         {
-            string[] ctrEmus = { "citra-qt.exe", "lime-qt.exe", "lime3ds-gui.exe" };
+            string[] ctrEmus =
+{
+                "citra-qt.exe",
+                "lime-qt.exe",
+                "lime3ds-gui.exe",
+                "lime3ds.exe",
+                "azahar.exe"
+            };
+            string emuExe = FilePicker.SelectFile("Select Exectuable for Emulator", Extensions.Exe, ctrEmus);
+            if (emuExe == null)
+                return;
 
-            string citraExe = selectExe("Select citra-qt.exe", "*.exe");
-            if (ctrEmus.Contains(Path.GetFileName(citraExe).ToLowerInvariant()))
-            {
-                main.launcherPath = citraExe;
-                main.config.pq2Config.launcherPath = citraExe;
-                main.updateConfig();
-                CitraTextbox.Text = citraExe;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid exe.");
-            }
+            main.launcherPath = emuExe;
+            main.config.pq2Config.launcherPath = emuExe;
+            main.updateConfig();
+            CitraTextbox.Text = emuExe;
         }
 
         private string selectExe(string title, string extension)
@@ -205,12 +192,13 @@ namespace AemulusModManager
 
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            string selectedPath = selectExe("Select PQ2 data.cpk to unpack", ".cpk");
+            string selectedPath = FilePicker.SelectFile("Select PQ2 data.cpk to unpack", Extensions.Cpk);
             if (selectedPath == null)
             {
                 Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");
                 return;
             }
+
             main.ModGrid.IsHitTestVisible = false;
             UnpackButton.IsHitTestVisible = false;
             foreach (var button in main.buttons)
@@ -227,6 +215,11 @@ namespace AemulusModManager
         private void NotifBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             NotifBox.SelectedIndex = 0;
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

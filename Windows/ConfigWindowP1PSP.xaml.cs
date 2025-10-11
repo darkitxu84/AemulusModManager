@@ -5,6 +5,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using AemulusModManager.Windows;
+using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -20,16 +22,12 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
-            if (main.gamePath != null)
-                ISOTextbox.Text = main.gamePath;
-            if (main.launcherPath != null)
-                PPSSPPTextbox.Text = main.launcherPath;
-            if (main.config.p1pspConfig.texturesPath != null)
-                TexturesTextbox.Text = main.config.p1pspConfig.texturesPath;
-            if (main.config.p1pspConfig.cheatsPath != null)
-                CheatsTextbox.Text = main.config.p1pspConfig.cheatsPath;
+            OutputTextbox.Text = main.modPath ?? "";   
+            ISOTextbox.Text = main.gamePath ?? "";
+            PPSSPPTextbox.Text = main.launcherPath ?? "";
+            TexturesTextbox.Text = main.config.p1pspConfig.texturesPath ?? "";
+            CheatsTextbox.Text = main.config.p1pspConfig.cheatsPath ?? "";
+
             BuildFinishedBox.IsChecked = main.config.p1pspConfig.buildFinished;
             BuildWarningBox.IsChecked = main.config.p1pspConfig.buildWarning;
             ChangelogBox.IsChecked = main.config.p1pspConfig.updateChangelog;
@@ -37,48 +35,50 @@ namespace AemulusModManager
             CreateIsoBox.IsChecked = main.config.p1pspConfig.createIso;
             UpdateAllBox.IsChecked = main.config.p1pspConfig.updateAll;
             UpdateBox.IsChecked = main.config.p1pspConfig.updatesEnabled;
+
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder();
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p1pspConfig.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xb6, 0x83, 0xfc));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null) 
+                return;
+            
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p1pspConfig.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xb6, 0x83, 0xfc));
+            OutputTextbox.Text = directory;   
         }
-        private void textureDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void TextureDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder();
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting textures folder to {directory}");
-                main.config.p1pspConfig.texturesPath = directory;
-                main.updateConfig();
-                TexturesTextbox.Text = directory;
-            }
+            var directory = FilePicker.SelectFolder("Select textures folder");
+            if (directory == null) 
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting textures folder to {directory}");
+            main.config.p1pspConfig.texturesPath = directory;
+            main.updateConfig();
+            TexturesTextbox.Text = directory;
         }
-        private void cheatDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void CheatDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var file = selectExe("Select the P1PSP cheats ini (ULUS10432.ini)", "*.ini");
-            if (file != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting cheats ini to {file}");
-                main.config.p1pspConfig.cheatsPath = file;
-                main.updateConfig();
-                CheatsTextbox.Text = file;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] No ini selected");
-            }
+            var file = FilePicker.SelectFile("Select the P1PSP cheats ini (ULUS10432.ini)", Extensions.PpssppCheat);
+            if (file == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting cheats ini to {file}");
+            main.config.p1pspConfig.cheatsPath = file;
+            main.updateConfig();
+            CheatsTextbox.Text = file;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -92,42 +92,49 @@ namespace AemulusModManager
             main.config.p1pspConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p1pspConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p1pspConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p1pspConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p1pspConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.p1pspConfig.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.p1pspConfig.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -144,12 +151,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p1pspConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -157,97 +166,49 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = "Select Output Folder";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
-
         private void SetupISOShortcut(object sender, RoutedEventArgs e)
         {
-            string p1pspISO = selectExe("Select Persona 1 (PSP) ISO", ".iso");
-            if (p1pspISO != null)
-            {
-                main.gamePath = p1pspISO;
-                main.config.p1pspConfig.isoPath = p1pspISO;
-                main.updateConfig();
-                ISOTextbox.Text = p1pspISO;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] No ISO selected.");
-            }
+            string p1pspISO = FilePicker.SelectFile("Select Persona 1 (PSP) ISO", Extensions.PspIso);
+            if (p1pspISO == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting ISO file to {p1pspISO}");
+            main.gamePath = p1pspISO;
+            main.config.p1pspConfig.isoPath = p1pspISO;
+            main.updateConfig();
+            ISOTextbox.Text = p1pspISO;
         }
 
         private void SetupPPSSPPShortcut(object sender, RoutedEventArgs e)
         {
-            string ppssppExe = selectExe("Select PPSSPPWindows.exe/PPSSPPWindows64.exe", ".exe");
-            if (Path.GetFileName(ppssppExe).ToLowerInvariant() == "ppssppwindows.exe" ||
-                Path.GetFileName(ppssppExe).ToLowerInvariant() == "ppssppwindows64.exe")
-            {
-                main.launcherPath = ppssppExe;
-                main.config.p1pspConfig.launcherPath = ppssppExe;
-                main.updateConfig();
-                PPSSPPTextbox.Text = ppssppExe;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid exe.");
-            }
-        }
+            string ppssppExe = FilePicker.SelectFile("Select PPSSPPWindows.exe/PPSSPPWindows64.exe", Extensions.Exe, mustContain: "ppssppwindows");
+            if (ppssppExe == null)
+                return;
 
-        private string selectExe(string title, string extension)
-        {
-            string type = "Application";
-            if (extension == ".iso")
-                type = "Disk";
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter(type, $"*{extension}"));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
+            Utilities.ParallelLogger.Log($"[INFO] Setting PPSSPP exe to {ppssppExe}");
+            main.launcherPath = ppssppExe;
+            main.config.p1pspConfig.launcherPath = ppssppExe;
+            main.updateConfig();
+            PPSSPPTextbox.Text = ppssppExe;
         }
 
         // Use 7zip on iso
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            if (main.gamePath == null || main.gamePath == "")
+            if (String.IsNullOrEmpty(main.gamePath))
             {
-                string selectedPath = selectExe("Select P1PSP ISO to unpack", ".iso");
-                if (selectedPath != null)
-                {
-                    main.gamePath = selectedPath;
-                    main.config.p1pspConfig.isoPath = main.gamePath;
-                    main.updateConfig();
-                }
-                else
+                string selectedPath = FilePicker.SelectFile("Select P1PSP ISO to unpack", Extensions.PspIso);
+                if (selectedPath == null)
                 {
                     Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");
                     return;
                 }
+
+                main.gamePath = selectedPath;
+                main.config.p1pspConfig.isoPath = main.gamePath;
+                main.updateConfig();
             }
+
             main.ModGrid.IsHitTestVisible = false;
             UnpackButton.IsHitTestVisible = false;
             foreach (var button in main.buttons)
@@ -278,6 +239,11 @@ namespace AemulusModManager
             main.createIso = false;
             main.config.p1pspConfig.createIso = false;
             main.updateConfig();
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -19,8 +20,8 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
+            OutputTextbox.Text = main.modPath ?? "";
+
             BuildFinishedBox.IsChecked = main.config.p5sConfig.buildFinished;
             BuildWarningBox.IsChecked = main.config.p5sConfig.buildWarning;
             ChangelogBox.IsChecked = main.config.p5sConfig.updateChangelog;
@@ -29,25 +30,29 @@ namespace AemulusModManager
             UpdateBox.IsChecked = main.config.p5sConfig.updatesEnabled;
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder();
-            if (directory != null)
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+            if (Path.GetFileName(directory).ToLower() != "motor_rsc")
             {
-                if (Path.GetFileName(directory).ToLower() != "motor_rsc")
-                {
-                    Utilities.ParallelLogger.Log(@"[ERROR] Please select P5S\data\motor_rsc as your output path");
-                    return;
-                }
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p5sConfig.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0x25, 0xf4, 0xb8));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
+                Utilities.ParallelLogger.Log(@"[ERROR] Please select P5S\data\motor_rsc as your output path");
+                return;
             }
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p5sConfig.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0x25, 0xf4, 0xb8));
+            OutputTextbox.Text = directory;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -61,42 +66,49 @@ namespace AemulusModManager
             main.config.p5sConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p5sConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p5sConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p5sConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p5sConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.p5sConfig.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.p5sConfig.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -113,12 +125,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p5sConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -126,33 +140,15 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = "Select Output Folder";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
-
         // Stops the user from changing the displayed "Notifications" text to the names of one of the combo boxes
         private void NotifBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             NotifBox.SelectedIndex = 0;
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

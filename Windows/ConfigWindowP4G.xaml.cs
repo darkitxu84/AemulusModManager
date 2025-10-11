@@ -4,7 +4,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
-using AemulusModManager.Utilities;
+using AemulusModManager.Utilities.Windows;
+using System.Collections.Generic;
 
 namespace AemulusModManager
 {
@@ -20,12 +21,10 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
-            if (main.gamePath != null)
-                P4GTextbox.Text = main.gamePath;
-            if (main.launcherPath != null)
-                ReloadedTextbox.Text = main.launcherPath;
+            OutputTextbox.Text = main.modPath ?? "";
+            P4GTextbox.Text = main.gamePath ?? "";
+            ReloadedTextbox.Text = main.launcherPath ?? "";
+
             KeepSND.IsChecked = main.emptySND;
             CpkBox.IsChecked = main.useCpk;
             BuildFinishedBox.IsChecked = main.config.p4gConfig.buildFinished;
@@ -59,6 +58,21 @@ namespace AemulusModManager
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
 
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
+        {
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p4gConfig.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf5, 0xe6, 0x3d));
+            OutputTextbox.Text = directory;
+        }
 
         private void SndChecked(object sender, RoutedEventArgs e)
         {
@@ -66,6 +80,7 @@ namespace AemulusModManager
             main.config.p4gConfig.emptySND = true;
             main.updateConfig();
         }
+
         private void SndUnchecked(object sender, RoutedEventArgs e)
         {
             main.emptySND = false;
@@ -79,6 +94,7 @@ namespace AemulusModManager
             main.config.p4gConfig.useCpk = true;
             main.updateConfig();
         }
+
         private void CpkUnchecked(object sender, RoutedEventArgs e)
         {
             main.useCpk = false;
@@ -130,36 +146,42 @@ namespace AemulusModManager
             main.config.p4gConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p4gConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p4gConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p4gConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p4gConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p4gConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -167,87 +189,33 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
-        {
-            var directory = openFolder();
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p4gConfig.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf5, 0xe6, 0x3d));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
-        }
-        // Used for selecting
-        private string openFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = "Select Output Folder";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
-
         private void SetupP4GShortcut(object sender, RoutedEventArgs e)
         {
-            string p4gExe = selectExe("Select P4G.exe");
-            if (Path.GetFileName(p4gExe) == "P4G.exe")
-            {
-                main.gamePath = p4gExe;
-                main.config.p4gConfig.exePath = p4gExe;
-                main.updateConfig();
-                P4GTextbox.Text = p4gExe;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid exe.");
-            }
+            string p4gExe = FilePicker.SelectFile("Select P4G.exe", Extensions.Exe, exactMatch: "P4G.exe");
+            if (p4gExe == null)
+                return;
+
+            main.gamePath = p4gExe;
+            main.config.p4gConfig.exePath = p4gExe;
+            main.updateConfig();
+            P4GTextbox.Text = p4gExe;
         }
 
         private void SetupReloadedShortcut(object sender, RoutedEventArgs e)
         {
-            string reloadedExe = selectExe("Select Reloaded-II.exe");
-            if (Path.GetFileName(reloadedExe) == "Reloaded-II.exe" ||
-                Path.GetFileName(reloadedExe) == "Reloaded-II32.exe")
+            string[] supportedReloadedExes =
             {
-                main.launcherPath = reloadedExe;
-                main.config.p4gConfig.reloadedPath = reloadedExe;
-                main.updateConfig();
-                ReloadedTextbox.Text = reloadedExe;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid exe.");
-            }
-        }
-        private string selectExe(string title)
-        {
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter("Application", "*.exe"));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
+                "Reloaded-II.exe",
+                "Reloaded-II32.exe"
+            };
+            string reloadedExe = FilePicker.SelectFile("Select Reloaded-II.exe", Extensions.Exe, supportedReloadedExes);
+            if (reloadedExe == null)
+                return;
+
+            main.launcherPath = reloadedExe;
+            main.config.p4gConfig.reloadedPath = reloadedExe;
+            main.updateConfig();
+            ReloadedTextbox.Text = reloadedExe;
         }
 
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
@@ -256,45 +224,28 @@ namespace AemulusModManager
             if (main.modPath != null && File.Exists($@"{Directory.GetParent(main.modPath)}\data00004.pac"))
                 directory = Directory.GetParent(main.modPath).ToString();
             else
-                directory = openPacsFolder();
-            if (directory != null)
-            {
-                if (File.Exists($@"{directory}\{main.cpkLang}"))
-                {
-                    UnpackButton.IsHitTestVisible = false;
-                    main.ModGrid.IsHitTestVisible = false;
-                    main.GameBox.IsHitTestVisible = false;
-                    foreach (var button in main.buttons)
-                    {
-                        button.Foreground = new SolidColorBrush(Colors.Gray);
-                        button.IsHitTestVisible = false;
-                    }
-                    await main.pacUnpack(directory);
-                    UnpackButton.IsHitTestVisible = true;
-                }
-                else
-                    Utilities.ParallelLogger.Log($"[ERROR] Invalid folder cannot find {main.cpkLang}");
-            }
-        }
+                directory = FilePicker.SelectFolder("Select P4G Game Directory");
 
-        private string openPacsFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.Multiselect = false;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Title = "Select P4G Game Directory";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
+            if (directory == null)
+                return;
+            if (!File.Exists($@"{directory}\{main.cpkLang}"))
             {
-                return openFolder.FileName;
+                Utilities.ParallelLogger.Log($"[ERROR] Invalid folder. Cannot find {main.cpkLang}");
+                return;
             }
 
-            return null;
+            UnpackButton.IsHitTestVisible = false;
+            main.ModGrid.IsHitTestVisible = false;
+            main.GameBox.IsHitTestVisible = false;
+            foreach (var button in main.buttons)
+            {
+                button.Foreground = new SolidColorBrush(Colors.Gray);
+                button.IsHitTestVisible = false;
+            }
+            await main.pacUnpack(directory);
+            UnpackButton.IsHitTestVisible = true;
         }
-
-
+            
         private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (LanguageBox.SelectedIndex != -1 && IsLoaded)
@@ -326,6 +277,11 @@ namespace AemulusModManager
         private void NotifBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             NotifBox.SelectedIndex = 0;
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

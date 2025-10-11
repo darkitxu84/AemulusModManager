@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Linq;
+using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -24,15 +25,16 @@ namespace AemulusModManager
         {
             main = _main;
             InitializeComponent();
+            
+            OutputTextbox.Text = main.modPath ?? "";
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
             BuildFinishedBox.IsChecked = main.config.p5rConfig.buildFinished;
             BuildWarningBox.IsChecked = main.config.p5rConfig.buildWarning;
             ChangelogBox.IsChecked = main.config.p5rConfig.updateChangelog;
             DeleteBox.IsChecked = main.config.p5rConfig.deleteOldVersions;
             UpdateAllBox.IsChecked = main.config.p5rConfig.updateAll;
             UpdateBox.IsChecked = main.config.p5rConfig.updatesEnabled;
+
             switch (main.config.p5rConfig.cpkName)
             {
                 case "bind":
@@ -80,20 +82,24 @@ namespace AemulusModManager
             }
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder("Select output folder");
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p5rConfig.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf7, 0x64, 0x84));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p5rConfig.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xf7, 0x64, 0x84));
+            OutputTextbox.Text = directory;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -107,42 +113,49 @@ namespace AemulusModManager
             main.config.p5rConfig.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p5rConfig.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p5rConfig.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p5rConfig.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p5rConfig.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.p5rConfig.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.p5rConfig.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -159,12 +172,14 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p5rConfig.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
@@ -172,98 +187,78 @@ namespace AemulusModManager
             main.updateConfig();
         }
 
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder(string title)
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = title;
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            string selectedPath = openFolder("Select folder with P5R cpks");
-            if (selectedPath != null)
+            string selectedPath = FilePicker.SelectFolder("Select folder with P5R cpks");
+            if (selectedPath == null)
             {
-                var cpksNeeded = new List<string>();
-                var extraCpk = String.Empty;
-                cpksNeeded.Add("dataR.cpk");
-                cpksNeeded.Add("ps4R.cpk");
+                Utilities.ParallelLogger.Log("[ERROR] No folder chosen");
+                return;
+            }
+
+            var cpksNeeded = new List<string>()
+            {
+                "dataR.cpk",
+                "ps4R.cpk"
+            };
+            var extraCpk = String.Empty;
+
+            switch (main.config.p5rConfig.language)
+            {
+                case "English":
+                    break;
+                case "French":
+                    cpksNeeded.Add("dataR_F.cpk");
+                    extraCpk = ", dataR_F.cpk";
+                    break;
+                case "Italian":
+                    cpksNeeded.Add("dataR_I.cpk");
+                    extraCpk = ", dataR_I.cpk";
+                    break;
+                case "German":
+                    cpksNeeded.Add("dataR_G.cpk");
+                    extraCpk = ", dataR_G.cpk";
+                    break;
+                case "Spanish":
+                    cpksNeeded.Add("dataR_S.cpk");
+                    extraCpk = ", dataR_S.cpk";
+                    break;
+            }
+
+            if (main.config.p5rConfig.version == ">= 1.02")
+            {
+                cpksNeeded.Add("patch2R.cpk");
+                extraCpk += ", patch2R.cpk";
                 switch (main.config.p5rConfig.language)
                 {
                     case "English":
                         break;
                     case "French":
-                        cpksNeeded.Add("dataR_F.cpk");
-                        extraCpk = ", dataR_F.cpk";
+                        cpksNeeded.Add("patch2R_F.cpk");
+                        extraCpk += ", patch2R_F.cpk";
                         break;
                     case "Italian":
-                        cpksNeeded.Add("dataR_I.cpk");
-                        extraCpk = ", dataR_I.cpk";
+                        cpksNeeded.Add("patch2R_I.cpk");
+                        extraCpk += ", patch2R_I.cpk";
                         break;
                     case "German":
-                        cpksNeeded.Add("dataR_G.cpk");
-                        extraCpk = ", dataR_G.cpk";
+                        cpksNeeded.Add("patch2R_G.cpk");
+                        extraCpk += ", patch2R_G.cpk";
                         break;
                     case "Spanish":
-                        cpksNeeded.Add("dataR_S.cpk");
-                        extraCpk = ", dataR_S.cpk";
+                        cpksNeeded.Add("patch2R_S.cpk");
+                        extraCpk += ", patch2R_S.cpk";
                         break;
                 }
-
-                if (main.config.p5rConfig.version == ">= 1.02")
-                {
-                    cpksNeeded.Add("patch2R.cpk");
-                    extraCpk += ", patch2R.cpk";
-                    switch (main.config.p5rConfig.language)
-                    {
-                        case "English":
-                            break;
-                        case "French":
-                            cpksNeeded.Add("patch2R_F.cpk");
-                            extraCpk += ", patch2R_F.cpk";
-                            break;
-                        case "Italian":
-                            cpksNeeded.Add("patch2R_I.cpk");
-                            extraCpk += ", patch2R_I.cpk";
-                            break;
-                        case "German":
-                            cpksNeeded.Add("patch2R_G.cpk");
-                            extraCpk += ", patch2R_G.cpk";
-                            break;
-                        case "Spanish":
-                            cpksNeeded.Add("patch2R_S.cpk");
-                            extraCpk += ", patch2R_S.cpk";
-                            break;
-                    }
-                }
-
-                var cpks = Directory.GetFiles(selectedPath, "*.cpk", SearchOption.TopDirectoryOnly);
-                if (cpksNeeded.Except(cpks.Select(x => Path.GetFileName(x))).Any())
-                {
-                    Utilities.ParallelLogger.Log($"[ERROR] Not all cpks needed (dataR.cpk, ps4R.cpk{extraCpk}) are found in top directory of {selectedPath}");
-                    return;
-                }
             }
-            else
+
+            var cpks = Directory.GetFiles(selectedPath, "*.cpk", SearchOption.TopDirectoryOnly);
+            if (cpksNeeded.Except(cpks.Select(x => Path.GetFileName(x))).Any())
             {
-                Utilities.ParallelLogger.Log("[ERROR] No folder chosen");
+                Utilities.ParallelLogger.Log($"[ERROR] Not all cpks needed (dataR.cpk, ps4R.cpk{extraCpk}) are found in top directory of {selectedPath}");
                 return;
             }
+
             main.ModGrid.IsHitTestVisible = false;
             UnpackButton.IsHitTestVisible = false;
             foreach (var button in main.buttons)
@@ -303,6 +298,7 @@ namespace AemulusModManager
                 handled = false;
             }
         }
+
         private void LanguageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!IsLoaded)
@@ -324,6 +320,7 @@ namespace AemulusModManager
                 language_handled = false;
             }
         }
+
         private void VersionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!IsLoaded)
@@ -344,6 +341,11 @@ namespace AemulusModManager
                 }
                 version_handled = false;
             }
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

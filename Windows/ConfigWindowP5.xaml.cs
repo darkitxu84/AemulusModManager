@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -19,14 +20,11 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            if (main.modPath != null)
-                OutputTextbox.Text = main.modPath;
-            if (main.gamePath != null)
-                EBOOTTextbox.Text = main.gamePath;
-            if (main.launcherPath != null)
-                RPCS3Textbox.Text = main.launcherPath;
-            if (main.config.p5Config.CpkName != null)
-                CpkNameTextbox.Text = main.config.p5Config.CpkName;
+            OutputTextbox.Text = main.modPath ?? "";
+            EBOOTTextbox.Text = main.gamePath ?? "";
+            RPCS3Textbox.Text = main.launcherPath ?? "";
+            CpkNameTextbox.Text = main.config.p5Config.cpkName ?? "";
+
             BuildFinishedBox.IsChecked = main.config.p5Config.buildFinished;
             BuildWarningBox.IsChecked = main.config.p5Config.buildWarning;
             ChangelogBox.IsChecked = main.config.p5Config.updateChangelog;
@@ -35,20 +33,23 @@ namespace AemulusModManager
             UpdateBox.IsChecked = main.config.p5Config.updatesEnabled;
             Utilities.ParallelLogger.Log("[INFO] Config launched");
         }
-        private void modDirectoryClick(object sender, RoutedEventArgs e)
+
+        private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
-            var directory = openFolder();
-            if (directory != null)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
-                main.config.p5Config.modDir = directory;
-                main.modPath = directory;
-                main.MergeButton.IsHitTestVisible = true;
-                main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xfb, 0x51, 0x51));
-                main.updateConfig();
-                OutputTextbox.Text = directory;
-            }
+            var directory = FilePicker.SelectFolder("Select output folder");
+            if (directory == null)
+                return;
+
+            Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
+            main.config.p5Config.modDir = directory;
+            main.modPath = directory;
+            main.updateConfig();
+
+            main.MergeButton.IsHitTestVisible = true;
+            main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xfb, 0x51, 0x51));
+            OutputTextbox.Text = directory;
         }
+
         private void BuildWarningChecked(object sender, RoutedEventArgs e)
         {
             main.buildWarning = true;
@@ -62,42 +63,49 @@ namespace AemulusModManager
             main.config.p5Config.buildWarning = false;
             main.updateConfig();
         }
+
         private void BuildFinishedChecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = true;
             main.config.p5Config.buildFinished = true;
             main.updateConfig();
         }
+
         private void BuildFinishedUnchecked(object sender, RoutedEventArgs e)
         {
             main.buildFinished = false;
             main.config.p5Config.buildFinished = false;
             main.updateConfig();
         }
+
         private void ChangelogChecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = true;
             main.config.p5Config.updateChangelog = true;
             main.updateConfig();
         }
+
         private void ChangelogUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateChangelog = false;
             main.config.p5Config.updateChangelog = false;
             main.updateConfig();
         }
+
         private void UpdateAllChecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = true;
             main.config.p5Config.updateAll = true;
             main.updateConfig();
         }
+
         private void UpdateAllUnchecked(object sender, RoutedEventArgs e)
         {
             main.updateAll = false;
             main.config.p5Config.updateAll = false;
             main.updateConfig();
         }
+
         private void UpdateChecked(object sender, RoutedEventArgs e)
         {
             main.updatesEnabled = true;
@@ -114,46 +122,19 @@ namespace AemulusModManager
             UpdateAllBox.IsChecked = false;
             UpdateAllBox.IsEnabled = false;
         }
+
         private void DeleteChecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = true;
             main.config.p5Config.deleteOldVersions = true;
             main.updateConfig();
         }
+
         private void DeleteUnchecked(object sender, RoutedEventArgs e)
         {
             main.deleteOldVersions = false;
             main.config.p5Config.deleteOldVersions = false;
             main.updateConfig();
-        }
-
-        private void onClose(object sender, CancelEventArgs e)
-        {
-            if (main.config.p5Config.CpkName != CpkNameTextbox.Text)
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Output Cpk changed to {CpkNameTextbox.Text}.cpk");
-                main.config.p5Config.CpkName = CpkNameTextbox.Text;
-                main.updateConfig();
-            }
-            Utilities.ParallelLogger.Log("[INFO] Config closed");
-        }
-
-        // Used for selecting
-        private string openFolder()
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = "Select Output Folder";
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
         }
 
         private void SetupEBOOTShortcut(object sender, RoutedEventArgs e)
@@ -208,21 +189,20 @@ namespace AemulusModManager
         // Use 7zip on iso
         private async void UnpackPacsClick(object sender, RoutedEventArgs e)
         {
-            if (main.gamePath == null || main.gamePath == "")
+            if (String.IsNullOrEmpty(main.gamePath))
             {
-                string selectedPath = selectExe("Select P5's EBOOT.BIN to unpack", ".bin");
-                if (selectedPath != null && Path.GetFileName(selectedPath) == "EBOOT.BIN")
-                {
-                    main.gamePath = selectedPath;
-                    main.config.p5Config.gamePath = main.gamePath;
-                    main.updateConfig();
-                }
-                else
+                string selectedPath = FilePicker.SelectFile("Select P5's EBOOT.BIN to unpack", Extensions.Ps3Eboot, exactMatch: "EBOOT.BIN");
+                if (selectedPath == null)
                 {
                     Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");
                     return;
                 }
+
+                main.gamePath = selectedPath;
+                main.config.p5Config.gamePath = main.gamePath;
+                main.updateConfig();
             }
+
             main.ModGrid.IsHitTestVisible = false;
             UnpackButton.IsHitTestVisible = false;
             foreach (var button in main.buttons)
@@ -239,6 +219,17 @@ namespace AemulusModManager
         private void NotifBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             NotifBox.SelectedIndex = 0;
+        }
+
+        private void OnClose(object sender, CancelEventArgs e)
+        {
+            if (main.config.p5Config.cpkName != CpkNameTextbox.Text)
+            {
+                Utilities.ParallelLogger.Log($"[INFO] Output Cpk changed to {CpkNameTextbox.Text}.cpk");
+                main.config.p5Config.cpkName = CpkNameTextbox.Text;
+                main.updateConfig();
+            }
+            Utilities.ParallelLogger.Log("[INFO] Config closed");
         }
     }
 }

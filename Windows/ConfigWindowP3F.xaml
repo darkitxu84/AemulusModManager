@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AemulusModManager"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner"
-        Title="Persona 3 FES Config" Height="450" Width="680" ResizeMode="NoResize" Background="#121212" Closing="onClose">
+        Title="Persona 3 FES Config" Height="450" Width="680" ResizeMode="NoResize" Background="#121212" Closing="OnClose">
     <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
@@ -45,10 +45,10 @@
         <TextBox Name="ELFTextbox" IsReadOnly="True" Background="#202020" BorderBrush="#424242" Foreground="#f2f2f2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="20" Grid.Row="7" Grid.Column="2"/>
         <TextBox Name="PCSX2Textbox" IsReadOnly="True" Background="#202020" BorderBrush="#424242" Foreground="#f2f2f2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="20" Grid.Row="8" Grid.Column="2"/>
 
-        <Button Height="20" Content="Browse" Name="PathButton" Click="modDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="3" Width="60"/>
-        <Button Height="20" Content="Browse" Name="CheatsButton" Click="cheatsDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="3" Width="60"/>
-        <Button Height="20" Content="Browse" Name="CheatsWSButton" Click="cheatsWSDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="3" Grid.Column="3" Width="60"/>
-        <Button Height="20" Content="Browse" Name="TexturesButton" Click="texturesDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="4" Grid.Column="3" Width="60"/>
+        <Button Height="20" Content="Browse" Name="PathButton" Click="ModDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="3" Width="60"/>
+        <Button Height="20" Content="Browse" Name="CheatsButton" Click="CheatsDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="3" Width="60"/>
+        <Button Height="20" Content="Browse" Name="CheatsWSButton" Click="CheatsWSDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="3" Grid.Column="3" Width="60"/>
+        <Button Height="20" Content="Browse" Name="TexturesButton" Click="TexturesDirectoryClick" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="4" Grid.Column="3" Width="60"/>
         <Button Height="20" Width="60" Content="Browse" Name="ISOButton" Click="SetupISOShortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="6" Grid.Column="4"/>
         <Button Height="20" Width="60" Content="Browse" Name="ELFButton" Click="SetupELFShortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="7" Grid.Column="3"/>
         <Button Height="20" Width="60" Content="Browse" Name="PCSX2Button" Click="SetupPCSX2Shortcut" Background ="White" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="8" Grid.Column="3"/>
