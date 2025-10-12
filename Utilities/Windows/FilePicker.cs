@@ -60,7 +60,7 @@ namespace AemulusModManager.Utilities.Windows
 
             if (!exactMatch.Contains(Path.GetFileName(openFile.FileName)))
             {
-                Utilities.ParallelLogger.Log($"[ERROR] Invalid {extension.Filter}. The file must be exact match with: {exactMatch}");
+                Utilities.ParallelLogger.Log($"[ERROR] Invalid {extension.Filter}. The file must be exact match with: {String.Join(", ", exactMatch)}");
                 return null;
             }
 

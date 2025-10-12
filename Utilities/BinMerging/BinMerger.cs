@@ -1023,14 +1023,12 @@ namespace AemulusModManager
                 return;
             }
 
-            // We need to merge all the cheats into one cheat (patch) file if we're using Pnach 2.0
+            // Merge all the cheats into one cheat (patch) file if we're using Pnach 2.0
             // For more info check:
             // https://forums.pcsx2.net/Thread-Sticky-Important-Patching-Notes-1-7-4546-Pnach-2-0
 
             // Merge the cheats that are in PCSX2 cheat folder too
             Utilities.ParallelLogger.Log($"[INFO] Cheats directory: {cheatsDir}");
-            allCheatFiles.AddRange(Directory.GetFiles(cheatsDir, "94A82AAA*.pnach", SearchOption.AllDirectories));
-
             string mergedFile = "gametitle=Shin Megami Tensei: Persona 3 FES (U)(SLUS-21621)\n";
 
             foreach (var cheat in allCheatFiles)
@@ -1059,7 +1057,7 @@ namespace AemulusModManager
                         splitedFilename.RemoveAt(0);
                         if (splitedFilename.Count > 0) currentFilename = String.Join(" ", splitedFilename);
                     }
-                    mergedFile += $"\n[{currentFilename}]\n";
+                    mergedFile += $"\n[Aemulus\\{currentFilename}]\n";
                 }
 
                 mergedFile += String.Join("\n", lines) + "\n";
