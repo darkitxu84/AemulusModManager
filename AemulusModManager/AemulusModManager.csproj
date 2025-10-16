@@ -76,24 +76,6 @@
     </Resource>
     <Resource Include="Assets\RobotoMono-Regular.ttf" />
     <Resource Include="Assets\Jost-SemiBold.ttf" />
-    <Content Include="Dependencies\SonicAudioTools\AcbEditor.exe.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Update="Dependencies\AwbTools\AWB_repacker.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\AwbTools\AWB_unpacker.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_data_pq.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\SpdPatcher\SPD Patcher.deps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\SpdPatcher\SPD Patcher.runtimeconfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Libraries\Persona5Royal\Modules\Common\Enums.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -101,57 +83,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Libraries\Persona5\Modules\Custom\Functions.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_data.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_dataR.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_dataR_Localized.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_data_pq2.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_p4gdata.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_patch2R.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_patch2R_F.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_patch2R_G.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_patch2R_I.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_patch2R_S.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_ps3.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_ps4R.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\FilteredCpkCsv\filtered_umd0.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\Preappfile\Amicitia.IO.deps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\Preappfile\preappfile.deps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\Preappfile\preappfile.runtimeconfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Dependencies\Preappfile\PreappPartnersLib.deps.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -506,10 +437,14 @@
     </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
-    <ContentWithTargetPath Include="Dependencies\PM1MessageScriptEditor\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Dependencies\PM1MessageScriptEditor\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
-    </ContentWithTargetPath>
+    <Compile Remove="AemulusModManager\**" />
+    <Compile Remove="Dependencies\**" />
+    <EmbeddedResource Remove="AemulusModManager\**" />
+    <EmbeddedResource Remove="Dependencies\**" />
+    <None Remove="AemulusModManager\**" />
+    <None Remove="Dependencies\**" />
+    <Page Remove="AemulusModManager\**" />
+    <Page Remove="Dependencies\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\pq.png" />
@@ -522,33 +457,6 @@
     <ApplicationDefinition Include="Windows\App.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dependencies\SonicAudioTools\AcbEditor.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SonicAudioTools\at3plusdecoder.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SonicAudioTools\NAudio.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SonicAudioTools\NAudio.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SonicAudioTools\SonicAudioLib.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SonicAudioTools\vgmstream.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SpdPatcher\Amicitia.IO.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SpdPatcher\SPD Patcher.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\SpdPatcher\SPD Patcher.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Update="aemulus_overlay.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -583,68 +491,10 @@
     <Resource Include="Assets\p1psp.png" />
     <Resource Include="Assets\p1pspicon.png" />
     <Content Include="AtlusScriptLibrary.dll" />
-    <Content Include="Dependencies\CpkMakeC\CpkBinder.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\CpkMakeC\cpkmakec.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\CpkMakeC\CpkMaker.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\DecEboot\deceboot.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\DecEboot\LICENSE.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\mkisofs\mkisofs.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\PM1MessageScriptEditor\Antlr4.Runtime.dll" />
-    <Content Include="Dependencies\PM1MessageScriptEditor\AtlusScriptLibrary.dll" />
-    <Content Include="Dependencies\PM1MessageScriptEditor\Newtonsoft.Json.dll" />
-    <Content Include="Dependencies\PM1MessageScriptEditor\PM1MessageScriptEditor.exe" />
-    <Content Include="Dependencies\rdb_tool.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Assets\Aemulus.ico" />
-    <Content Include="Dependencies\7z\7z.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\7z\7z.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Resource Include="Dependencies\7z\License.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Content Include="Dependencies\Preappfile\Amicitia.IO.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\Preappfile\CommandLine.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\Preappfile\Glob.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\Preappfile\preappfile.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\Preappfile\preappfile.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Dependencies\Preappfile\PreappPartnersLib.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Assets\HHH.png" />
     <Resource Include="Assets\Inaba.png" />
-    <Content Include="Dependencies\PAKPack\AtlusFileSystemLibrary.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Assets\Preview.png" />
-    <Content Include="Dependencies\PAKPack\PAKPack.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -667,24 +517,18 @@
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
-    <PackageReference Include="NVorbis" Version="0.10.3" />
     <PackageReference Include="Octokit" Version="0.49.0" />
     <PackageReference Include="Onova" Version="2.6.2" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.14" />
     <PackageReference Include="Vlc.DotNet.Core" Version="3.1.0" />
-    <PackageReference Include="Vlc.DotNet.Core.Interops" Version="3.1.0" />
     <PackageReference Include="Vlc.DotNet.Wpf" Version="3.1.0" />
     <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.1" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-    <PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="7.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Code Dependecies\AtlusFileSystemLibrary\Source\AtlusFileSystemLibrary\AtlusFileSystemLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AtlusScriptLibrary">
@@ -699,4 +543,13 @@
     </Compile>
   </ItemGroup>
   <ProjectExtensions />
+	<Target Name="CopyDependenciesFolder" AfterTargets="Build">
+		<ItemGroup>
+			<DependenciesFiles Include="$(ProjectDir)..\Dependencies\**\*.*" />
+		</ItemGroup>
+		<Copy
+		  SourceFiles="@(DependenciesFiles)"
+		  DestinationFiles="@(DependenciesFiles->'$(OutDir)Dependencies\%(RecursiveDir)%(Filename)%(Extension)')"
+		  SkipUnchangedFiles="true" />
+	</Target>
 </Project>

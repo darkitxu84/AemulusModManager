@@ -31,6 +31,7 @@ namespace AemulusModManager
         private XmlSerializer xs;
 
         public string game { get; set; }
+        public string aemPath { get; set; }
         public bool bottomUpPriority { get; set; }
         public bool updateAemulus { get; set; } = true;
         public bool darkMode { get; set; } = true;
@@ -80,6 +81,8 @@ namespace AemulusModManager
             _instance.pqConfig = new ConfigPQ();
             _instance.pq2Config = new ConfigPQ2();
             _instance.p1pspConfig = new ConfigP1PSP();
+
+            _instance.aemPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             xs = new XmlSerializer(typeof(AemulusConfig));
         }

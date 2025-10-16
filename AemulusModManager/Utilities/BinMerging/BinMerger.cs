@@ -17,6 +17,11 @@ namespace AemulusModManager
     {
         private static string exePath = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\PAKPack\PAKPack.exe";
 
+        public static readonly HashSet<string> containerExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".arc", ".bin", ".pac", ".pak", ".abin"
+        };
+
         // Use PAKPack command
         public static void PAKPackCMD(string args)
         {
@@ -133,12 +138,9 @@ namespace AemulusModManager
 
         public static void Unpack(List<string> ModList, string modDir, bool useCpk, string cpkLang, string game)
         {
-            if (!File.Exists(exePath))
-            {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {exePath}. Please check if it was blocked by your anti-virus.");
-                return;
-            }
+            var config = AemulusConfig.Instance;
             Utilities.ParallelLogger.Log("[INFO] Beginning to unpack...");
+
             // Copy over base PATCH1 file
             if (game == "Persona 5 Royal (Switch)")
             {
@@ -166,11 +168,13 @@ namespace AemulusModManager
 
                     ProcessStartInfo ProcessInfo;
 
-                    ProcessInfo = new ProcessStartInfo();
-                    ProcessInfo.FileName = Path.GetFullPath($@"{mod}\prebuild.bat");
-                    ProcessInfo.CreateNoWindow = true;
-                    ProcessInfo.UseShellExecute = false;
-                    ProcessInfo.WorkingDirectory = Path.GetFullPath(mod);
+                    ProcessInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.GetFullPath($@"{mod}\prebuild.bat"),
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        WorkingDirectory = Path.GetFullPath(mod)
+                    };
 
                     using (Process process = new Process())
                     {

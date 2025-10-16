@@ -30,19 +30,24 @@ namespace AemulusModManager
                 File = _file;
             }
         }
+
         //P1PSP
         public static async Task UnzipAndUnBin(string iso)
         {
-            Directory.CreateDirectory($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)");
+            AemulusConfig config = AemulusConfig.Instance;
+
             if (!File.Exists(iso))
             {
                 Console.Write($"[ERROR] Couldn't find {iso}. Please correct the file path in config.");
                 return;
             }
+            Directory.CreateDirectory($@"{config.aemPath}\Original\Persona 1 (PSP)");
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = true;
-            startInfo.FileName = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\7z\7z.exe";
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                FileName = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\7z\7z.exe"
+            };
             if (!File.Exists(startInfo.FileName))
             {
                 Console.Write($"[ERROR] Couldn't find {startInfo.FileName}. Please check if it was blocked by your anti-virus.");
@@ -93,31 +98,36 @@ namespace AemulusModManager
         // P3F
         public static async Task Unzip(string iso)
         {
+            AemulusConfig config = AemulusConfig.Instance;
+            const string fileExtensionsToExtract = "*.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC";
+            string _7zDir = @$"{config.aemPath}\Dependencies\7z\7z.exe";
+            string folderToExtract = $@"{config.aemPath}\Original\Persona 3 FES";
+
             if (!File.Exists(iso))
             {
-                Console.Write($"[ERROR] Couldn't find {iso}. Please correct the file path in config.");
+                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {iso}. Please correct the file path in config.");
+                return;
+            }
+            if (!File.Exists(_7zDir))
+            {
+                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
                 return;
             }
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = true;
-            startInfo.FileName = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\7z\7z.exe";
-            if (!File.Exists(startInfo.FileName))
+            ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                Console.Write($"[ERROR] Couldn't find {startInfo.FileName}. Please check if it was blocked by your anti-virus.");
-                return;
-            }
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = _7zDir,
+                UseShellExecute = false
+            };
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Mouse.OverrideCursor = Cursors.Wait;
             });
 
-            var tasks = new List<Task>();
-
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.UseShellExecute = false;
-            startInfo.Arguments = $"x -y \"{iso}\" -o\"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES" + "\" BTL.CVM DATA.CVM";
+            startInfo.Arguments = $"x -y \"{iso}\" -o\"{folderToExtract}\" BTL.CVM DATA.CVM";
             Utilities.ParallelLogger.Log($"[INFO] Extracting BTL.CVM and DATA.CVM from {iso}");
             using (Process process = new Process())
             {
@@ -125,7 +135,8 @@ namespace AemulusModManager
                 process.Start();
                 process.WaitForExit();
             }
-            startInfo.Arguments = "x -y \"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES\BTL.CVM" + "\" -o\"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES\BTL" + "\" *.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC -r";
+
+            startInfo.Arguments = "x -y \"" + $@"{folderToExtract}\BTL.CVM" + "\" -o\"" + $@"{folderToExtract}\BTL" + $"\" {fileExtensionsToExtract} -r";
             Utilities.ParallelLogger.Log($"[INFO] Extracting base files from BTL.CVM");
             using (Process process = new Process())
             {
@@ -133,7 +144,8 @@ namespace AemulusModManager
                 process.Start();
                 process.WaitForExit();
             }
-            startInfo.Arguments = "x -y \"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES\DATA.CVM" + "\" -o\"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES\DATA" + "\" *.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC -r";
+
+            startInfo.Arguments = "x -y \"" + $@"{folderToExtract}\DATA.CVM" + "\" -o\"" + $@"{folderToExtract}\DATA" + $"\" {fileExtensionsToExtract} -r";
             Utilities.ParallelLogger.Log($"[INFO] Extracting base files from DATA.CVM");
             using (Process process = new Process())
             {
@@ -141,10 +153,12 @@ namespace AemulusModManager
                 process.Start();
                 process.WaitForExit();
             }
-            ExtractWantedFiles($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES");
-            File.Delete($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES\BTL.CVM");
-            File.Delete($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 FES\DATA.CVM");
+
+            File.Delete($@"{folderToExtract}\BTL.CVM");
+            File.Delete($@"{folderToExtract}\DATA.CVM");
+            ExtractWantedFiles(folderToExtract);
             Utilities.ParallelLogger.Log($"[INFO] Finished unpacking base files!");
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Mouse.OverrideCursor = null;
@@ -734,14 +748,19 @@ namespace AemulusModManager
             if (!Directory.Exists(directory))
                 return;
 
+            // we want to extract binMerger.containerExtenions + gsd + tpc
+            var extensionsToExtract = new HashSet<string>(binMerge.containerExtensions, StringComparer.OrdinalIgnoreCase)
+            {
+                ".gsd", ".tpc"
+            };
             var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).
-                Where(s => s.ToLower().EndsWith(".arc") || s.ToLower().EndsWith(".bin") || s.ToLower().EndsWith(".pac") || s.ToLower().EndsWith(".pak") || s.ToLower().EndsWith(".abin")
-                || s.ToLower().EndsWith(".gsd") || s.ToLower().EndsWith(".tpc"));
+                Where(file => extensionsToExtract.Contains(Path.GetExtension(file)));
+
             foreach(string file in files)
             {
                 List<string> contents = binMerge.getFileContents(file).Select(x => x.ToLower()).ToList();
                 // Check if there are any files we want (or files that could have files we want) and unpack them if so
-                bool containersFound = contents.Exists(x => x.ToLower().EndsWith(".bin") || x.ToLower().EndsWith(".pac") || x.ToLower().EndsWith(".pak") || x.ToLower().EndsWith(".abin") || x.ToLower().EndsWith(".arc"));
+                bool containersFound = contents.Exists(x => binMerge.containerExtensions.Contains(Path.GetExtension(file)));
                 if(contents.Exists(x => x.ToLower().EndsWith(".bf") || x.ToLower().EndsWith(".bmd") || x.ToLower().EndsWith(".pm1") || x.ToLower().EndsWith(".dat") || x.ToLower().EndsWith(".ctd") || x.ToLower().EndsWith(".ftd") || x.ToLower().EndsWith(".spd") || x.ToLower().EndsWith(".acb") || x.ToLower().EndsWith(".awb") || containersFound))
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking {file}");
