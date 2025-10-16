@@ -1,5 +1,4 @@
-﻿using AemulusModManager.Utilities;
-using AemulusModManager.Utilities.PackageUpdating;
+﻿using AemulusModManager.Utilities.PackageUpdating;
 using AemulusModManager.Utilities.PackageUpdating.DownloadUtils;
 using AemulusModManager.Windows;
 using Newtonsoft.Json;
@@ -18,7 +17,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Xml.Serialization;
 
 namespace AemulusModManager
 {
@@ -711,7 +709,7 @@ namespace AemulusModManager
                 foreach (var file in folder)
                 {
                     var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
-                    if (File.Exists(targetFile)) 
+                    if (File.Exists(targetFile))
                         File.Delete(targetFile);
                     File.Move(file, targetFile);
                 }

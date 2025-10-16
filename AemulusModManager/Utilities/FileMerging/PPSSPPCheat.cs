@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace AemulusModManager.Utilities.FileMerging
 {
@@ -42,14 +39,15 @@ namespace AemulusModManager.Utilities.FileMerging
         internal static PPSSPPCheatFile ParseCheats(string cheatFilePath)
         {
             PPSSPPCheatFile cheatFile = new PPSSPPCheatFile(new List<PPSSPPCheat>(), "", "");
-            
+
             try
             {
                 PPSSPPCheat currentCheat = null;
                 foreach (var line in File.ReadLines(cheatFilePath))
                 {
                     // Game id
-                    if(Regex.IsMatch(line, @"^_S .*")) {
+                    if (Regex.IsMatch(line, @"^_S .*"))
+                    {
                         cheatFile.GameID = line.Substring(3);
                         continue;
                     }

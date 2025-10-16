@@ -30,7 +30,7 @@ namespace AemulusModManager
         public int Downloads { get; set; }
         [JsonIgnore]
         public string DownloadString => StringConverters.FormatNumber(Downloads);
-        
+
         [JsonProperty("_aMetadata")]
         [JsonExtensionData]
         public IDictionary<string, JToken> FileMetadata { get; set; }

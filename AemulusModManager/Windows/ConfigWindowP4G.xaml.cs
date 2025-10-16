@@ -1,11 +1,8 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using System;
+﻿using AemulusModManager.Utilities.Windows;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
-using AemulusModManager.Utilities.Windows;
-using System.Collections.Generic;
 
 namespace AemulusModManager
 {
@@ -245,7 +242,7 @@ namespace AemulusModManager
             await main.pacUnpack(directory);
             UnpackButton.IsHitTestVisible = true;
         }
-            
+
         private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (LanguageBox.SelectedIndex != -1 && IsLoaded)

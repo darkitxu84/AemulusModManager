@@ -1,13 +1,10 @@
-﻿using AemulusModManager.Utilities.PackageUpdating;
-using AemulusModManager.Utilities.Windows;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Media;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace AemulusModManager.Windows
 {

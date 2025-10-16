@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace AemulusModManager.Utilities.Windows
@@ -16,7 +12,7 @@ namespace AemulusModManager.Utilities.Windows
             {
                 // If the row isn't hidden or hidden are being shown
                 return !(bool)showingHidden[0] || (bool)showingHidden[1] ? false : true;
-            } 
+            }
             catch
             {
                 return false;

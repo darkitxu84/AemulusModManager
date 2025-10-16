@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Net.Http;
-using Newtonsoft.Json;
-using System.Windows;
-using System.Text.RegularExpressions;
-using System.Reflection;
+﻿using AemulusModManager.Utilities.PackageUpdating;
 using AemulusModManager.Utilities.PackageUpdating.DownloadUtils;
 using AemulusModManager.Windows;
-using System.Threading;
-using AemulusModManager.Utilities.PackageUpdating;
+using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace AemulusModManager.Utilities
 {
@@ -161,7 +159,7 @@ namespace AemulusModManager.Utilities
                 return false;
             }
         }
-        
+
         private void ReportUpdateProgress(DownloadProgress progress)
         {
             if (progress.Percentage == 1)
@@ -174,7 +172,7 @@ namespace AemulusModManager.Utilities
             progressBox.progressText.Text = $"{Math.Round(progress.Percentage * 100, 2)}% " +
                 $"({StringConverters.FormatSize(progress.DownloadedBytes)} of {StringConverters.FormatSize(progress.TotalBytes)})";
         }
-        
+
         private bool ParseProtocol(string line)
         {
             try

@@ -1,12 +1,9 @@
-﻿using AtlusScriptLibrary.Common.Collections;
-using AtlusScriptLibrary.Common.Libraries;
+﻿using AtlusScriptLibrary.Common.Libraries;
 using AtlusScriptLibrary.Common.Logging;
 using AtlusScriptLibrary.Common.Text.Encodings;
 using AtlusScriptLibrary.FlowScriptLanguage;
 using AtlusScriptLibrary.FlowScriptLanguage.Compiler;
-using AtlusScriptLibrary.FlowScriptLanguage.Syntax;
 using AtlusScriptLibrary.MessageScriptLanguage;
-using AtlusScriptLibrary.MessageScriptLanguage.Decompiler;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -310,7 +307,7 @@ namespace AemulusModManager.Utilities.FileMerging
                     }
                 }
             }
-            
+
             return numChanges;
         }
 

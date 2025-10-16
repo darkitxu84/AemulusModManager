@@ -1,14 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using AemulusModManager.Utilities.SpdPatching;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Reflection;
-using AemulusModManager.Utilities.SpdPatching;
-using AemulusModManager.Utilities;
 
 
 namespace AemulusModManager

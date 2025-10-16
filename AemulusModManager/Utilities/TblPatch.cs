@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Reflection;
 
 namespace AemulusModManager
 {
@@ -528,7 +528,7 @@ namespace AemulusModManager
                     // Keep track of which TBL's were edited
                     if (!editedTables.Contains($"{table.tableName}.TBL"))
                         editedTables.Add($"{table.tableName}.TBL");
-                    else if((game == "Persona Q" || game == "Persona Q2") && !editedTables.Contains($@"{table.tableName}"))
+                    else if ((game == "Persona Q" || game == "Persona Q2") && !editedTables.Contains($@"{table.tableName}"))
                         editedTables.Add($"{table.tableName}");
 
                     string path = null;
@@ -540,7 +540,7 @@ namespace AemulusModManager
                         path = table.tableName.Equals("ITEMTBL") ? $@"{tblDir}\init\itemtbl.bin" : $@"{tblDir}\battle\{table.tableName}.TBL";
                     else if (game == "Persona 5" || game == "Persona 5 Royal (PS4)")
                         path = $@"{tblDir}\table\{table.tableName}.TBL";
-                    else if (game == "Persona Q" ||  game == "Persona Q2")
+                    else if (game == "Persona Q" || game == "Persona Q2")
                         path = $@"{modDir}/{table.tableName}";
 
                     if (table.tableName == "NAME")
@@ -634,7 +634,7 @@ namespace AemulusModManager
                 section = new NameSection();
                 // Get big endian section size
                 section.pointersSize = BitConverter.ToInt32(SliceArray(tblBytes, pos, pos + 4).Reverse().ToArray(), 0);
-                
+
                 // Get pointers
                 byte[] segment = SliceArray(tblBytes, pos + 4, pos + 4 + section.pointersSize);
                 section.pointers = new List<UInt16>();
@@ -694,7 +694,7 @@ namespace AemulusModManager
             section.pointers = new List<ushort>();
             for (int i = 0; i < segment.Length; i += 2)
             {
-                section.pointers.Add(BitConverter.ToUInt16(SliceArray(segment, i, i+2), 0));
+                section.pointers.Add(BitConverter.ToUInt16(SliceArray(segment, i, i + 2), 0));
             }
 
             pos += section.pointersSize * 2 + 2;
@@ -702,7 +702,7 @@ namespace AemulusModManager
             segment = SliceArray(tblBytes, pos, pos + section.namesSize);
             section.names = new List<byte[]>();
             List<byte> name = new List<byte>();
-            foreach(var segmentByte in segment)
+            foreach (var segmentByte in segment)
             {
                 if (segmentByte == (byte)0)
                 {

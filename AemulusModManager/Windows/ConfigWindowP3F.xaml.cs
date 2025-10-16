@@ -1,13 +1,10 @@
-using Microsoft.WindowsAPICodePack.Dialogs;
+using AemulusModManager.Utilities.Windows;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
-using AemulusModManager.Utilities;
-using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -45,9 +42,9 @@ namespace AemulusModManager
         private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
             var directory = FilePicker.SelectFolder("Select output folder");
-            if (directory == null) 
+            if (directory == null)
                 return;
-            
+
             Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
             main.config.p3fConfig.modDir = directory;
             main.modPath = directory;
@@ -56,15 +53,15 @@ namespace AemulusModManager
             main.MergeButton.IsHitTestVisible = true;
             main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0x6e, 0xb0, 0xf7));
             OutputTextbox.Text = directory;
-            
+
         }
 
         private void CheatsDirectoryClick(object sender, RoutedEventArgs e)
         {
             var directory = FilePicker.SelectFolder("Select cheats folder");
-            if (directory == null) 
+            if (directory == null)
                 return;
-            
+
             Utilities.ParallelLogger.Log($"[INFO] Setting cheats folder to {directory}");
             main.config.p3fConfig.cheatsPath = directory;
             main.updateConfig();
@@ -74,22 +71,22 @@ namespace AemulusModManager
         private void CheatsWSDirectoryClick(object sender, RoutedEventArgs e)
         {
             var directory = FilePicker.SelectFolder("Select cheats_ws folder");
-            if (directory == null) 
+            if (directory == null)
                 return;
-            
+
             Utilities.ParallelLogger.Log($"[INFO] Setting cheats_ws folder to {directory}");
             main.config.p3fConfig.cheatsWSPath = directory;
             main.updateConfig();
             CheatsWSTextbox.Text = directory;
-            
+
         }
 
         private void TexturesDirectoryClick(object sender, RoutedEventArgs e)
         {
             var directory = FilePicker.SelectFolder("Select textures folder");
-            if (directory == null) 
+            if (directory == null)
                 return;
-            
+
             Utilities.ParallelLogger.Log($"[INFO] Setting textures folder to {directory}");
             main.config.p3fConfig.texturesPath = directory;
             main.updateConfig();
@@ -212,7 +209,7 @@ namespace AemulusModManager
         private void SetupISOShortcut(object sender, RoutedEventArgs e)
         {
             string p3fIso = FilePicker.SelectFile("Select Persona 3 FES ISO", Extensions.Ps2Iso);
-            if (p3fIso == null) 
+            if (p3fIso == null)
                 return;
 
             main.gamePath = p3fIso;
@@ -224,9 +221,9 @@ namespace AemulusModManager
         private void SetupPCSX2Shortcut(object sender, RoutedEventArgs e)
         {
             string pcsx2Exe = FilePicker.SelectFile("Select pcsx2.exe", Extensions.Exe, mustContain: "pcsx2");
-            if (pcsx2Exe == null) 
+            if (pcsx2Exe == null)
                 return;
-            
+
             main.launcherPath = pcsx2Exe;
             main.config.p3fConfig.launcherPath = pcsx2Exe;
             main.updateConfig();
@@ -236,7 +233,7 @@ namespace AemulusModManager
         private void SetupELFShortcut(object sender, RoutedEventArgs e)
         {
             string elfFile = FilePicker.SelectFile("Select ELF/SLUS", Extensions.Elf);
-            if (elfFile == null) 
+            if (elfFile == null)
                 return;
 
             try
@@ -246,11 +243,11 @@ namespace AemulusModManager
                 string magic = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
                 if (!magic.EndsWith("ELF"))
-                    {
-                        Utilities.ParallelLogger.Log("[ERROR] Invalid ELF/SLUS. The first 4 bytes must be \".ELF\" in ASCII");
-                        return;
-                    }
+                {
+                    Utilities.ParallelLogger.Log("[ERROR] Invalid ELF/SLUS. The first 4 bytes must be \".ELF\" in ASCII");
+                    return;
                 }
+            }
 
             catch (Exception ex)
             {
@@ -271,7 +268,7 @@ namespace AemulusModManager
             {
                 string selectedPath = FilePicker.SelectFile("Select P3F's iso to unpack", Extensions.Ps2Iso);
                 if (selectedPath == null)
-                { 
+                {
                     Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen for unpacking.");
                     return;
                 }

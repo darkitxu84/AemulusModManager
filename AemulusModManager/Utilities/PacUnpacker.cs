@@ -1,20 +1,17 @@
-﻿using System;
+﻿using CriFsV2Lib;
+using CriFsV2Lib.Definitions.Interfaces;
+using CriFsV2Lib.Definitions.Structs;
+using CriFsV2Lib.Definitions.Utilities;
+using CriFsV2Lib.Encryption.Game;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Threading.Tasks;
-using AemulusModManager.Utilities;
-using CriFsV2Lib;
-using CriFsV2Lib.Definitions;
-using System.Windows.Controls;
-using CriFsV2Lib.Definitions.Structs;
-using CriFsV2Lib.Definitions.Interfaces;
-using CriFsV2Lib.Definitions.Utilities;
-using CriFsV2Lib.Encryption.Game;
 
 namespace AemulusModManager
 {
@@ -212,7 +209,7 @@ namespace AemulusModManager
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find {Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 Portable\PSP_GAME\USRDIR\umd0.cpk.");
 
             Utilities.ParallelLogger.Log("[INFO] Unpacking extracted files");
-                ExtractWantedFiles($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 Portable\data");
+            ExtractWantedFiles($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 Portable\data");
             if (Directory.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 Portable\PSP_GAME"))
                 Directory.Delete($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 3 Portable\PSP_GAME", true);
 
@@ -342,7 +339,7 @@ namespace AemulusModManager
             string pathToExtract = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5";
             Directory.CreateDirectory(pathToExtract);
 
-            if (!File.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\FilteredCpkCsv\filtered_data.csv") 
+            if (!File.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\FilteredCpkCsv\filtered_data.csv")
                 || !File.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\FilteredCpkCsv\filtered_ps3.csv"))
             {
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV files used for unpacking in Dependencies\FilteredCpkCsv");
@@ -756,19 +753,19 @@ namespace AemulusModManager
             var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).
                 Where(file => extensionsToExtract.Contains(Path.GetExtension(file)));
 
-            foreach(string file in files)
+            foreach (string file in files)
             {
                 List<string> contents = binMerge.getFileContents(file).Select(x => x.ToLower()).ToList();
                 // Check if there are any files we want (or files that could have files we want) and unpack them if so
                 bool containersFound = contents.Exists(x => binMerge.containerExtensions.Contains(Path.GetExtension(file)));
-                if(contents.Exists(x => x.ToLower().EndsWith(".bf") || x.ToLower().EndsWith(".bmd") || x.ToLower().EndsWith(".pm1") || x.ToLower().EndsWith(".dat") || x.ToLower().EndsWith(".ctd") || x.ToLower().EndsWith(".ftd") || x.ToLower().EndsWith(".spd") || x.ToLower().EndsWith(".acb") || x.ToLower().EndsWith(".awb") || containersFound))
+                if (contents.Exists(x => x.ToLower().EndsWith(".bf") || x.ToLower().EndsWith(".bmd") || x.ToLower().EndsWith(".pm1") || x.ToLower().EndsWith(".dat") || x.ToLower().EndsWith(".ctd") || x.ToLower().EndsWith(".ftd") || x.ToLower().EndsWith(".spd") || x.ToLower().EndsWith(".acb") || x.ToLower().EndsWith(".awb") || containersFound))
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking {file}");
                     binMerge.PAKPackCMD($"unpack \"{file}\"");
 
                     // Search the location of the unpacked container for wanted files
                     if (containersFound)
-                        ExtractWantedFiles(Path.Combine(Path.GetDirectoryName(file),Path.GetFileNameWithoutExtension(file)));
+                        ExtractWantedFiles(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file)));
                 }
             }
 

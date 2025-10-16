@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace AemulusModManager.Utilities.Windows
 {
@@ -34,16 +29,16 @@ namespace AemulusModManager.Utilities.Windows
 
             // Get all loadouts for the current game
             string[] loadoutFiles = Directory.GetFiles($@"{configPath}\{game}").Where((path) => Path.GetExtension(path) == ".xml").ToArray();
-            
+
             // Create a default loadout if none exists
-            if(loadoutFiles.Length == 0)
+            if (loadoutFiles.Length == 0)
             {
                 loadoutFiles = loadoutFiles.Append("Default").ToArray();
             }
 
             // Change the loadout items to the new ones
             LoadoutItems = new ObservableCollection<string>();
-            foreach(string loadout in loadoutFiles)
+            foreach (string loadout in loadoutFiles)
             {
                 LoadoutItems.Add(Path.GetFileNameWithoutExtension(loadout));
             }

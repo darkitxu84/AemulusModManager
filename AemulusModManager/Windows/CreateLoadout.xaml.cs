@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace AemulusModManager.Windows
 {
@@ -42,7 +32,7 @@ namespace AemulusModManager.Windows
                 Height = 120;
             }
             // Make the delete button invisible as this is a new loadout or renaming an imported one
-            if(currentName == null || noDelete)
+            if (currentName == null || noDelete)
             {
                 DeleteButton.Visibility = Visibility.Collapsed;
                 DeleteButton.IsEnabled = false;
@@ -61,7 +51,7 @@ namespace AemulusModManager.Windows
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
             // TODO check for invalid symbols
-            if(NameBox.Text == "Add new loadout")
+            if (NameBox.Text == "Add new loadout")
             {
                 Utilities.ParallelLogger.Log("[ERROR] Invalid loadout name, try another one.");
                 NotificationBox notification = new NotificationBox($"Invalid loadout name, try another one.");
@@ -90,12 +80,12 @@ namespace AemulusModManager.Windows
             // Check if there are more loadouts (you can't delete the last one)
             string configPath = $@"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Config";
             string[] loadoutFiles = Directory.GetFiles($@"{configPath}\{game}").Where((path) => System.IO.Path.GetExtension(path) == ".xml").ToArray();
-            if(loadoutFiles.Length == 1)
+            if (loadoutFiles.Length == 1)
             {
                 NotificationBox notification = new NotificationBox($"You cannot delete the last loadout");
                 Utilities.ParallelLogger.Log("[ERROR] You cannot delete the last loadout");
                 notification.ShowDialog();
-            } 
+            }
             // Confirm that the user wants to delete the loadout
             else
             {

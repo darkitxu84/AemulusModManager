@@ -1,13 +1,12 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Linq;
-using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -86,7 +85,7 @@ namespace AemulusModManager
 
         private void SetupEmulatorShortcut(object sender, RoutedEventArgs e)
         {
-            string[] supportedEmulatorsExes = 
+            string[] supportedEmulatorsExes =
             {
                 "yuzu.exe",
                 "ryujinx.exe"

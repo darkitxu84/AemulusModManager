@@ -1,6 +1,4 @@
 ﻿using AemulusModManager.Utilities.Windows;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;

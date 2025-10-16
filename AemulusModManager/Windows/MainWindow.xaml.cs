@@ -188,7 +188,7 @@ namespace AemulusModManager
             {
                 if (text.Contains("[INFO]"))
                     ConsoleOutput.AppendText(text, infoColor);
-                else if (text.Contains("[WARNING]")) 
+                else if (text.Contains("[WARNING]"))
                     ConsoleOutput.AppendText(text, warningColor);
                 else if (text.Contains("[ERROR]"))
                     ConsoleOutput.AppendText(text, errorColor);
@@ -258,7 +258,7 @@ namespace AemulusModManager
                 pqConfig = config.pqConfig;
                 pq2Config = config.pq2Config;
                 p1pspConfig = config.p1pspConfig;
-            
+
                 // Initialize xml serializers
                 XmlSerializer oldConfigSerializer = new XmlSerializer(typeof(Config));
                 xs = new XmlSerializer(typeof(AemulusConfig));
@@ -1115,8 +1115,8 @@ namespace AemulusModManager
             {
                 if (game != "Persona 3 FES" && game != "Persona 1 (PSP)")
                     Utilities.ParallelLogger.Log($"[INFO] Launching {gamePath} with {launcherPath}");
-                else if(game == "Persona 1 (PSP)")
-                    if(createIso)
+                else if (game == "Persona 1 (PSP)")
+                    if (createIso)
                         Utilities.ParallelLogger.Log($"[INFO] Launching {modPath}\\P1PSP.iso with {launcherPath}");
                     else
                         Utilities.ParallelLogger.Log($"[INFO] Launching {modPath}\\Persona 1 (PSP) with {launcherPath}");
@@ -2618,7 +2618,7 @@ namespace AemulusModManager
                     {
                         await Task.Run(() =>
                         {
-                            
+
                             string cheats = null;
                             string cheatsWS = null;
                             string textures = config.p3fConfig.texturesPath;
@@ -2640,7 +2640,7 @@ namespace AemulusModManager
                             if (packages.Exists(x => Directory.Exists($@"{x}\binarypatches")))
                                 BinaryPatcher.Patch(packages, $@"{modPath}\Persona 1 (PSP)", useCpk, cpkLang, game);
                             //binMerge.Merge(path, game);
-                            
+
                         });
 
                         if (packages.Exists(x => Directory.Exists($@"{x}\cheats")))
@@ -2678,7 +2678,7 @@ namespace AemulusModManager
                                 Utilities.ParallelLogger.Log($"[ERROR] Please set up Textures Path in config to copy over textures");
                         }
                         if (createIso)
-                        { 
+                        {
                             if (File.Exists($@"{modPath}\P1PSP.iso"))
                                 File.Delete($@"{modPath}\P1PSP.iso");
                             Utilities.ParallelLogger.Log($"[INFO] Building ISO...");
@@ -2704,7 +2704,7 @@ namespace AemulusModManager
                         Merger.Merge(packages, path);
                         Merger.Patch(path);
                     }
-                    if(game== "Persona 3 FES")
+                    if (game == "Persona 3 FES")
                     {
                         Merger.UpperAll(path);
                     }

@@ -30,7 +30,7 @@ namespace AemulusModManager.Utilities
             for (int i = 0; i < count; i++)
             {
                 string next = _Queue.Take();
-                string checkHeader = next.Split(']')[0]; 
+                string checkHeader = next.Split(']')[0];
                 if (lastHeader != checkHeader)
                 {
                     Console.Write(builder.ToString());
@@ -52,7 +52,7 @@ namespace AemulusModManager.Utilities
         public static void AddDebugInfo(string caller, int line, ref string message)
         {
             int offset = message.IndexOf(']');
-            if (line != -1) message = $"{message.Substring(0,offset)}]({caller}-{line}){message.Substring(offset+1)}";
+            if (line != -1) message = $"{message.Substring(0, offset)}]({caller}-{line}){message.Substring(offset + 1)}";
         }
 
         public static void Log(string message,

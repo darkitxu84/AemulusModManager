@@ -1,15 +1,10 @@
-﻿using AemulusModManager.Utilities.TblPatching;
+﻿using AemulusModManager.Utilities.BinaryPatching;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Reflection;
-using AemulusModManager.Utilities.BinaryPatching;
-using AemulusModManager.Utilities;
 
 namespace AemulusModManager
 {
@@ -18,7 +13,7 @@ namespace AemulusModManager
         public static void Patch(List<string> ModList, string modDir, bool useCpk, string cpkLang, string game)
         {
             Utilities.ParallelLogger.Log("[INFO] Patching files...");
-            
+
             // Load EnabledPatches in order
             foreach (string dir in ModList)
             {

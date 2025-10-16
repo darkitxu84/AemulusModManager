@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Globalization;
-using AemulusModManager.Utilities;
 
 namespace AemulusModManager.Utilities.AwbMerging
 {
@@ -58,7 +54,7 @@ namespace AemulusModManager.Utilities.AwbMerging
             Directory.CreateDirectory(awbPath);
 
             List<string> files = new List<string>(Directory.EnumerateFiles($@"{args}_extracted_files"));
-            foreach(var file in files)
+            foreach (var file in files)
                 File.Move(file, $@"{awbPath}\{Convert.ToString(int.Parse(Path.GetFileNameWithoutExtension(file), NumberStyles.HexNumber)).PadLeft(5, '0')}_streaming{extension}");
             Directory.Delete($@"{args}_extracted_files", true);
         }
@@ -136,7 +132,7 @@ namespace AemulusModManager.Utilities.AwbMerging
         public static void Merge(List<string> ModList, string game, string modDir)
         {
             List<string> acbs = new List<string>();
-            foreach(string mod in ModList)
+            foreach (string mod in ModList)
             {
                 List<string> directories = new List<string>(Directory.EnumerateDirectories(mod, "*", SearchOption.AllDirectories));
                 string[] AemIgnore = File.Exists($@"{mod}\Ignore.aem") ? File.ReadAllLines($@"{mod}\Ignore.aem") : null;
@@ -169,10 +165,10 @@ namespace AemulusModManager.Utilities.AwbMerging
                     }
                 }
             }
-            foreach(string acb in acbs)
+            foreach (string acb in acbs)
             {
                 Utilities.ParallelLogger.Log($"[INFO] Repacking {acb}");
-                if(AcbExists(acb))
+                if (AcbExists(acb))
                     RunAcbEditor(acb);
                 else
                     RunAwbRepacker(acb);

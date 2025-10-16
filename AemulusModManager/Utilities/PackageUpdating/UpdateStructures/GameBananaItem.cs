@@ -127,7 +127,7 @@ namespace AemulusModManager
         public string ObsolescenceNotice { get; set; }
         [JsonIgnore]
         public string ConvertedObsolesenceNotice => String.IsNullOrEmpty(ObsolescenceNotice) ?
-            "This Mod has been marked as obsolete. It may no longer work and/or contain outdated information. It is retained for archival purposes." 
+            "This Mod has been marked as obsolete. It may no longer work and/or contain outdated information. It is retained for archival purposes."
             : ConvertHtmlToText(ObsolescenceNotice);
         [JsonProperty("_bIsObsolete")]
         public bool IsObsolete { get; set; }

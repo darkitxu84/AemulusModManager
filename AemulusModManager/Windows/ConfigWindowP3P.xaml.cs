@@ -1,11 +1,9 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {

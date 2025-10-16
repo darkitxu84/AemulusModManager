@@ -1,12 +1,8 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using AemulusModManager.Windows;
-using AemulusModManager.Utilities.Windows;
 
 namespace AemulusModManager
 {
@@ -22,7 +18,7 @@ namespace AemulusModManager
             main = _main;
             InitializeComponent();
 
-            OutputTextbox.Text = main.modPath ?? "";   
+            OutputTextbox.Text = main.modPath ?? "";
             ISOTextbox.Text = main.gamePath ?? "";
             PPSSPPTextbox.Text = main.launcherPath ?? "";
             TexturesTextbox.Text = main.config.p1pspConfig.texturesPath ?? "";
@@ -42,9 +38,9 @@ namespace AemulusModManager
         private void ModDirectoryClick(object sender, RoutedEventArgs e)
         {
             var directory = FilePicker.SelectFolder("Select output folder");
-            if (directory == null) 
+            if (directory == null)
                 return;
-            
+
             Utilities.ParallelLogger.Log($"[INFO] Setting output folder to {directory}");
             main.config.p1pspConfig.modDir = directory;
             main.modPath = directory;
@@ -52,13 +48,13 @@ namespace AemulusModManager
 
             main.MergeButton.IsHitTestVisible = true;
             main.MergeButton.Foreground = new SolidColorBrush(Color.FromRgb(0xb6, 0x83, 0xfc));
-            OutputTextbox.Text = directory;   
+            OutputTextbox.Text = directory;
         }
 
         private void TextureDirectoryClick(object sender, RoutedEventArgs e)
         {
             var directory = FilePicker.SelectFolder("Select textures folder");
-            if (directory == null) 
+            if (directory == null)
                 return;
 
             Utilities.ParallelLogger.Log($"[INFO] Setting textures folder to {directory}");

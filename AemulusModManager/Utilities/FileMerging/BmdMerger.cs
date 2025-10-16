@@ -1,5 +1,4 @@
 ﻿using AtlusScriptLibrary.MessageScriptLanguage;
-using AtlusScriptLibrary.MessageScriptLanguage.Compiler;
 using System;
 using System.Collections.Generic;
 using System.IO;

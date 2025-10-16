@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using AemulusModManager.Utilities.Windows;
-using AemulusModManager.Windows;
 
 namespace AemulusModManager
 {

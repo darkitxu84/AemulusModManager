@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AemulusModManager.Utilities.AwbMerging;
+using AemulusModManager.Utilities.FileMerging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,10 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using System.Threading;
-using AemulusModManager.Utilities;
-using AemulusModManager.Utilities.AwbMerging;
-using AemulusModManager.Utilities.FileMerging;
 
 namespace AemulusModManager
 {
@@ -202,8 +200,8 @@ namespace AemulusModManager
                         && Path.GetExtension(file).ToLower() != ".exe" && Path.GetExtension(file).ToLower() != ".dll"
                         && Path.GetExtension(file).ToLower() != ".flow" && Path.GetExtension(file).ToLower() != ".msg"
                         && Path.GetExtension(file).ToLower() != ".back" && Path.GetExtension(file).ToLower() != ".bp"
-                        && !Path.GetDirectoryName(file).Contains("spdpatches") && Path.GetExtension(file).ToLower() != ".pnach" 
-                        && Path.GetFileNameWithoutExtension(file).ToLower() != "preview" 
+                        && !Path.GetDirectoryName(file).Contains("spdpatches") && Path.GetExtension(file).ToLower() != ".pnach"
+                        && Path.GetFileNameWithoutExtension(file).ToLower() != "preview"
                         && !file.Substring(mod.Length).ToLower().Contains("\\texture_override\\") //check if the file is in texture_override folder
                         && !(game == "Persona 3 Portable" && file.Substring(mod.Length).ToLower().Contains("\\fmv\\")) //check if the file is an FMV for P3P
                         && !((game == "Persona 3 Portable" || game == "Persona 1 (PSP)") && file.Substring(mod.Length).ToLower().Contains("\\cheats\\")))
@@ -216,7 +214,7 @@ namespace AemulusModManager
 
                         if ((AemIgnore != null && AemIgnore.Any(file.Contains)) || AwbMerger.SoundArchiveExists(Path.GetDirectoryName(ogBinPath)))
                             continue;
-                        else if (game != "Persona 1 (PSP)" 
+                        else if (game != "Persona 1 (PSP)"
                             && (Path.GetExtension(file).ToLower() == ".bin"
                             || Path.GetExtension(file).ToLower() == ".abin"
                             || Path.GetExtension(file).ToLower() == ".fpc"
@@ -748,7 +746,7 @@ namespace AemulusModManager
                                         else if (Path.GetExtension(longestPrefix2).ToLower() == ".spd" && (Path.GetExtension(f).ToLower() == ".dds" || Path.GetExtension(f).ToLower() == ".spdspr"))
                                         {
                                             PAKPackCMD($"unpack \"{file2}\"");
-                                            string spdPath = $@"{temp}\{Path.ChangeExtension(longestPrefix.Replace("/", "\\"), null)}\{longestPrefix2.Replace("/", "\\")}";                                          
+                                            string spdPath = $@"{temp}\{Path.ChangeExtension(longestPrefix.Replace("/", "\\"), null)}\{longestPrefix2.Replace("/", "\\")}";
                                             if (Path.GetExtension(f).ToLower() == ".dds")
                                                 spdUtils.replaceDDS(spdPath, f);
                                             else
@@ -831,7 +829,7 @@ namespace AemulusModManager
                     }
                 }
             }
-            
+
             // Go through mod directory again to delete unpacked files after bringing them in
             foreach (var file in Directory.GetFiles(modDir, "*", SearchOption.AllDirectories))
             {
@@ -1050,7 +1048,7 @@ namespace AemulusModManager
                     if (line.StartsWith('[') && line.EndsWith(']')) hasName = true;
                 }
                 if (lineToRemove != String.Empty) lines.Remove(lineToRemove);
-               
+
                 if (!hasName)
                 {
                     string currentFilename = Path.GetFileNameWithoutExtension(cheat);
@@ -1116,7 +1114,7 @@ namespace AemulusModManager
             List<string> copiedFmvs = new List<string>();
             foreach (string dir in mods)
             {
-                if(!Directory.Exists($@"{dir}\FMV"))
+                if (!Directory.Exists($@"{dir}\FMV"))
                     continue;
                 if (!Directory.Exists(Path.Combine(modDir, "FMV")))
                     Directory.CreateDirectory(Path.Combine(modDir, "FMV"));
@@ -1138,24 +1136,27 @@ namespace AemulusModManager
                     {
                         File.Copy(fmv, destinationFmv, true);
                         Utilities.ParallelLogger.Log($"[INFO] Copying {fmv} over {destinationFmv}");
-                    } catch(Exception e)
+                    }
+                    catch (Exception e)
                     {
                         Utilities.ParallelLogger.Log($"[ERROR] Unable to copy {fmv} to {destinationFmv}: {e.Message}");
                     }
                 }
-            } 
-            if (Directory.Exists(Path.Combine(modDir, "FMV")))
-            // Delete any FMVs in the P3P FMV folder that weren't from one of the mods
-            foreach(var file in Directory.EnumerateFiles(Path.Combine(modDir, "FMV")).Where(f => !copiedFmvs.Contains(Path.GetFileName(f)))) {
-                try
-                {
-                    File.Delete(file);
-                    Utilities.ParallelLogger.Log($"[INFO] Deleting unwanted FMV {file}");
-                } catch(Exception e)
-                {
-                    Utilities.ParallelLogger.Log($"[ERROR] Unable to delete unwatned FMV {file}: {e.Message}");
-                }
             }
+            if (Directory.Exists(Path.Combine(modDir, "FMV")))
+                // Delete any FMVs in the P3P FMV folder that weren't from one of the mods
+                foreach (var file in Directory.EnumerateFiles(Path.Combine(modDir, "FMV")).Where(f => !copiedFmvs.Contains(Path.GetFileName(f))))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                        Utilities.ParallelLogger.Log($"[INFO] Deleting unwanted FMV {file}");
+                    }
+                    catch (Exception e)
+                    {
+                        Utilities.ParallelLogger.Log($"[ERROR] Unable to delete unwatned FMV {file}: {e.Message}");
+                    }
+                }
         }
 
         public static void LoadP3PCheats(List<string> mods, string cheatFile)
@@ -1175,7 +1176,7 @@ namespace AemulusModManager
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Applying cheats from {newCheatFile}");
                     var newCheats = PPSSPPCheatFile.ParseCheats(newCheatFile);
-                    foreach(var cheat in newCheats.Cheats)
+                    foreach (var cheat in newCheats.Cheats)
                     {
                         var existingCheat = existingCheats.Cheats.FirstOrDefault(c => c.Name == cheat.Name);
                         if (existingCheat != null)
@@ -1191,7 +1192,7 @@ namespace AemulusModManager
                     writer.WriteLine($"_S {existingCheats.GameID}");
                     writer.WriteLine($"_G {existingCheats.GameName}");
                     writer.WriteLine();
-                    foreach(var cheat in existingCheats.Cheats)
+                    foreach (var cheat in existingCheats.Cheats)
                     {
                         writer.WriteLine($"_C{(cheat.Enabled ? '1' : '0')} {cheat.Name}");
                         foreach (var line in cheat.Contents)
