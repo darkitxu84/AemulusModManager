@@ -6,7 +6,6 @@ using AemulusModManager.Utilities.PackageUpdating;
 using AemulusModManager.Utilities.Windows;
 using AemulusModManager.Windows;
 using GongSolutions.Wpf.DragDrop.Utilities;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -1152,24 +1151,14 @@ namespace AemulusModManager
                         Activate();
                         if (notification.YesNo)
                         {
-                            CommonOpenFileDialog tempElfDialog = new CommonOpenFileDialog();
-                            tempElfDialog.InitialDirectory = new FileInfo(elfPath).DirectoryName;
-                            if (tempElfDialog.ShowDialog() == CommonFileDialogResult.Ok)
-                            {
-                                tempElfPath = tempElfDialog.FileName;
-                            }
+                            tempElfPath = FilePicker.SelectFile("Select file", Extensions.Elf);
                         }
                         notification = new NotificationBox("Would you like to choose a custom ISO to launch with? If you're using HostFS, choose \"No\".", false);
                         notification.ShowDialog();
                         Activate();
                         if (notification.YesNo)
                         {
-                            CommonOpenFileDialog tempGameDialog = new CommonOpenFileDialog();
-                            tempGameDialog.InitialDirectory = new FileInfo(gamePath).DirectoryName;
-                            if (tempGameDialog.ShowDialog() == CommonFileDialogResult.Ok)
-                            {
-                                tempGamePath = tempGameDialog.FileName;
-                            }
+                            tempGamePath = FilePicker.SelectFile("Select ISO", Extensions.Ps2Iso);
                         }
 
                         // If the user said "No" to both options, we'll fall back to the old behavior
@@ -1871,144 +1860,91 @@ namespace AemulusModManager
                 }
             }
         }
-
-        private string selectExe(string title, string extension)
-        {
-            string type = "Application";
-            if (extension == ".iso")
-                type = "Disk";
-            else if (extension == ".bin")
-                type = "EBOOT";
-            else if (extension == ".cpk")
-                type = "File Container";
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter(type, $"*{extension}"));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
-        }
-        private string openFolder(string title)
-        {
-            var openFolder = new CommonOpenFileDialog();
-            openFolder.AllowNonFileSystemItems = true;
-            openFolder.IsFolderPicker = true;
-            openFolder.EnsurePathExists = true;
-            openFolder.EnsureValidNames = true;
-            openFolder.Multiselect = false;
-            openFolder.Title = title;
-            if (openFolder.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openFolder.FileName;
-            }
-
-            return null;
-        }
         private void MergeClick(object sender, RoutedEventArgs e)
         {
             MergeCommand();
         }
         private async void MergeCommand()
         {
-            if ((game == "Persona 5 Strikers" && !Directory.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\{game}\motor_rsc"))
-                    || (game == "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\{game}", "*.bin", SearchOption.AllDirectories).Count() == 0)
-                    || (game != "Persona 5 Strikers" && game != "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\{game}", "*.bf", SearchOption.AllDirectories).Count() == 0))
+            if ((game == "Persona 5 Strikers" && !Directory.Exists($@"{config.aemPath}\Original\{game}\motor_rsc"))
+                    || (game == "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{config.aemPath}\Original\{game}", "*.bin", SearchOption.AllDirectories).Count() == 0)
+                    || (game != "Persona 5 Strikers" && game != "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{config.aemPath}\Original\{game}", "*.bf", SearchOption.AllDirectories).Count() == 0))
             {
                 Utilities.ParallelLogger.Log("[WARNING] Aemulus can't find your Base files in the Original folder.");
                 Utilities.ParallelLogger.Log($"[WARNING] Attempting to unpack/backup base files first.");
 
                 string selectedPath = null;
-                if (gamePath == "" || gamePath == null)
+                if (String.IsNullOrEmpty(gamePath))
                 {
-                    if (game == "Persona 4 Golden")
+                    if (game == Games.P4G)
                     {
-                        selectedPath = selectExe("Select P4G.exe to unpack", ".exe");
-                        if (selectedPath != null && Path.GetFileName(selectedPath) == "P4G.exe")
+                        selectedPath = FilePicker.SelectFile("Select P4G.exe to unpack", Extensions.Exe, exactMatch: "P4G.exe");
+                        if (selectedPath != null)
                         {
                             gamePath = selectedPath;
                             config.p4gConfig.exePath = gamePath;
                             updateConfig();
                         }
-                        else
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
                     }
-                    else if (game == "Persona 3 FES")
+                    else if (game == Games.P3F)
                     {
-                        selectedPath = selectExe("Select P3F's iso to unpack", ".iso");
+                        selectedPath = FilePicker.SelectFile("Select P3F's iso to unpack", Extensions.Ps2Iso);
                         if (selectedPath != null)
                         {
                             gamePath = selectedPath;
                             config.p3fConfig.isoPath = gamePath;
                             updateConfig();
                         }
-                        else
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
                     }
-                    else if (game == "Persona 5")
+                    else if (game == Games.P5)
                     {
-                        selectedPath = selectExe("Select P5's EBOOT.BIN to unpack", ".bin");
-                        if (selectedPath != null && Path.GetFileName(selectedPath) == "EBOOT.BIN")
+                        selectedPath = FilePicker.SelectFile("Select P5's EBOOT.BIN to unpack", Extensions.Ps3Eboot, exactMatch: "EBOOT.BIN");
+                        if (selectedPath != null)
                         {
                             gamePath = selectedPath;
                             config.p5Config.gamePath = gamePath;
                             updateConfig();
                         }
-                        else
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
                     }
-                    else if (game == "Persona 1 (PSP)")
+                    else if (game == Games.P1PSP)
                     {
-                        selectedPath = selectExe("Select P1PSP's iso to unpack", ".iso");
+                        selectedPath = FilePicker.SelectFile("Select P1PSP's iso to unpack", Extensions.PspIso);
                         if (selectedPath != null)
                         {
                             gamePath = selectedPath;
                             config.p1pspConfig.isoPath = gamePath;
                             updateConfig();
                         }
-                        else
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
                     }
-                    else if (game == "Persona 3 Portable")
+                    else if (game == Games.P3P)
                     {
-                        selectedPath = selectExe("Select P3P's iso to unpack", ".iso");
+                        selectedPath = FilePicker.SelectFile("Select P3P's iso to unpack", Extensions.PspIso);
                         if (selectedPath != null)
                         {
                             gamePath = selectedPath;
                             config.p3pConfig.isoPath = gamePath;
                             updateConfig();
                         }
-                        else
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
                     }
-                    else if (game == "Persona 4 Golden (Vita)")
+                    else if (game == Games.P4Gvita)
                     {
-                        selectedPath = selectExe("Select P4G's data.cpk to unpack", ".cpk");
+                        selectedPath = FilePicker.SelectFile("Select P4G's data.cpk to unpack", Extensions.Cpk);
                         if (selectedPath != null)
                         {
                             gamePath = selectedPath;
                         }
-                        else
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
                     }
-                    else if (game == "Persona Q2")
+                    else if (game == Games.PQ2)
                     {
-                        selectedPath = selectExe("Select PQ2's data.cpk to unpack", ".cpk");
-                        if (selectedPath == null)
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
+                        selectedPath = FilePicker.SelectFile("Select PQ2's data.cpk to unpack", Extensions.Cpk);
                     }
-                    else if (game == "Persona Q")
+                    else if (game == Games.PQ)
                     {
-                        selectedPath = selectExe("Select PQ's data.cpk to unpack", ".cpk");
-                        if (selectedPath == null)
-                            Utilities.ParallelLogger.Log("[ERROR] Incorrect file chosen.");
+                        selectedPath = FilePicker.SelectFile("Select PQ's data.cpk to unpack", Extensions.Cpk);
                     }
-                    else if (game == "Persona 5 Royal (PS4)")
+                    else if (game == Games.P5R)
                     {
-                        selectedPath = openFolder("Select folder with P5R cpks");
+                        selectedPath = FilePicker.SelectFolder("Select folder with P5R cpks");
                         if (selectedPath != null)
                         {
                             var cpksNeeded = new List<string>();
@@ -2071,9 +2007,9 @@ namespace AemulusModManager
                                 gamePath = selectedPath;
                         }
                     }
-                    else if (game == "Persona 5 Royal (Switch)")
+                    else if (game == Games.P5Rswitch)
                     {
-                        selectedPath = openFolder("Select folder with P5R (Switch) cpks");
+                        selectedPath = FilePicker.SelectFolder("Select folder with P5R (Switch) cpks");
                         if (selectedPath != null)
                         {
                             var cpksNeeded = new List<string>();
@@ -2124,7 +2060,7 @@ namespace AemulusModManager
             // Check if the games files need to be unpacked again (for flow merging)
             if (game != "Persona 5 Strikers" && game != "Persona 1 (PSP)" && lastUnpacked == null)
             {
-                var bfFiles = Directory.EnumerateFiles($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\{game}", "*.bf", SearchOption.AllDirectories);
+                var bfFiles = Directory.EnumerateFiles($@"{config.aemPath}\Original\{game}", "*.bf", SearchOption.AllDirectories);
                 if (bfFiles.Count() == 0)
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking game files to allow bf merging for {game}.");

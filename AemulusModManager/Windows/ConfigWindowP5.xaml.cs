@@ -1,5 +1,4 @@
 ﻿using AemulusModManager.Utilities.Windows;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -139,51 +138,26 @@ namespace AemulusModManager
 
         private void SetupEBOOTShortcut(object sender, RoutedEventArgs e)
         {
-            string p5Eboot = selectExe("Select Persona 5 EBOOT.BIN", ".bin");
-            if (p5Eboot != null && Path.GetFileName(p5Eboot).ToLower() == "eboot.bin")
-            {
-                main.gamePath = p5Eboot;
-                main.config.p5Config.gamePath = p5Eboot;
-                main.updateConfig();
-                EBOOTTextbox.Text = p5Eboot;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid EBOOT.BIN.");
-            }
+            string p5Eboot = FilePicker.SelectFile("Select Persona 5 EBOOT.BIN", Extensions.Ps3Eboot);
+            if (p5Eboot == null)
+                return;
+
+            main.gamePath = p5Eboot;
+            main.config.p5Config.gamePath = p5Eboot;
+            main.updateConfig();
+            EBOOTTextbox.Text = p5Eboot;
         }
 
         private void SetupRPCS3Shortcut(object sender, RoutedEventArgs e)
         {
-            string rpcs3Exe = selectExe("Select rpcs3.exe", ".exe");
-            if (Path.GetFileName(rpcs3Exe) == "rpcs3.exe")
-            {
-                main.launcherPath = rpcs3Exe;
-                main.config.p5Config.launcherPath = rpcs3Exe;
-                main.updateConfig();
-                RPCS3Textbox.Text = rpcs3Exe;
-            }
-            else
-            {
-                Utilities.ParallelLogger.Log("[ERROR] Invalid exe.");
-            }
-        }
+            string rpcs3Exe = FilePicker.SelectFile("Select rpcs3.exe", Extensions.Exe, exactMatch: "rpcs3.exe");
+            if (rpcs3Exe == null)
+                return;
 
-        private string selectExe(string title, string extension)
-        {
-            string type = "Application";
-            if (extension == ".bin")
-                type = "EBOOT";
-            var openExe = new CommonOpenFileDialog();
-            openExe.Filters.Add(new CommonFileDialogFilter(type, $"*{extension}"));
-            openExe.EnsurePathExists = true;
-            openExe.EnsureValidNames = true;
-            openExe.Title = title;
-            if (openExe.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                return openExe.FileName;
-            }
-            return null;
+            main.launcherPath = rpcs3Exe;
+            main.config.p5Config.launcherPath = rpcs3Exe;
+            main.updateConfig();
+            RPCS3Textbox.Text = rpcs3Exe;
         }
 
         // Use 7zip on iso

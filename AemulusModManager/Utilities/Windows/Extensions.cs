@@ -21,8 +21,9 @@
         public static readonly Extension Exe = new Extension("*.exe", "Application");
         public static readonly Extension Elf = new Extension("*.elf", "PS2 Executable");
         public static readonly Extension Cpk = new Extension("*.cpk", "CPK File");
-        public static readonly Extension Ps3Eboot = new Extension("*.bin", "PS3 Executable (EBOOT.BIN)");
+        public static readonly Extension Ps3Eboot = new Extension("EBOOT.BIN", "PS3 Executable (EBOOT.BIN)");
         public static readonly Extension SwitchRom = new Extension("*.xci;*.nsp", "Switch ROM");
         public static readonly Extension N3dsRom = new Extension("*.3ds;*.app;*.cxi;*.cci", "Nintendo 3DS ROM");
+        public static readonly Extension Png = new Extension("*.png", "PNG Image");
     }
 }

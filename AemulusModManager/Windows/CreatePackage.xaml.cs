@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using AemulusModManager.Utilities.Windows;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -164,15 +164,11 @@ namespace AemulusModManager
 
         private void PreviewButton_Click(object sender, RoutedEventArgs e)
         {
-            var openPng = new CommonOpenFileDialog();
-            openPng.Filters.Add(new CommonFileDialogFilter("Preview", "*.*"));
-            openPng.EnsurePathExists = true;
-            openPng.EnsureValidNames = true;
-            openPng.Title = "Select Preview";
-            if (openPng.ShowDialog() == CommonFileDialogResult.Ok)
+            var openPng = FilePicker.SelectFile("Select Preview", Extensions.Png);
+            if (openPng != null)
             {
-                PreviewBox.Text = openPng.FileName;
-                thumbnailPath = openPng.FileName;
+                PreviewBox.Text = openPng;
+                thumbnailPath = openPng;
             }
             // Bring Create Package window back to foreground after closing dialog
             this.Activate();

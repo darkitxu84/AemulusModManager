@@ -1,7 +1,7 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace AemulusModManager.Utilities.Windows
 {
@@ -9,16 +9,17 @@ namespace AemulusModManager.Utilities.Windows
     {
         public static string SelectFile(string title, in Extension extension, string mustContain = null, string exactMatch = null)
         {
-            var openFile = new CommonOpenFileDialog()
+            var openFile = new OpenFileDialog()
             {
-                EnsurePathExists = true,
-                EnsureValidNames = true,
+                Multiselect = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
                 Title = title,
+                Filter = $"{extension.Title}|{extension.Filter}"
             };
-            openFile.Filters.Add(new CommonFileDialogFilter(extension.Title, extension.Filter));
 
             // If the user does not select a file we return null
-            if (openFile.ShowDialog() != CommonFileDialogResult.Ok)
+            if (!(bool)openFile.ShowDialog())
             {
                 Utilities.ParallelLogger.Log($"[WARNING] No {extension.Filter} file specified.");
                 return null;
@@ -40,16 +41,17 @@ namespace AemulusModManager.Utilities.Windows
 
         public static string SelectFile(string title, in Extension extension, string[] exactMatch)
         {
-            var openFile = new CommonOpenFileDialog()
+            var openFile = new OpenFileDialog()
             {
-                EnsurePathExists = true,
-                EnsureValidNames = true,
+                Multiselect = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
                 Title = title,
+                Filter = $"{extension.Title}({extension.Filter})|{extension.Filter}"
             };
-            openFile.Filters.Add(new CommonFileDialogFilter(extension.Title, extension.Filter));
 
             // If the user does not select a file we return null
-            if (openFile.ShowDialog() != CommonFileDialogResult.Ok)
+            if (!(bool)openFile.ShowDialog())
             {
                 Utilities.ParallelLogger.Log($"[WARNING] No {extension.Filter} file specified.");
                 return null;
@@ -66,23 +68,20 @@ namespace AemulusModManager.Utilities.Windows
 
         public static string SelectFolder(string title)
         {
-            var openFolder = new CommonOpenFileDialog
+            var openFolder = new OpenFolderDialog
             {
-                AllowNonFileSystemItems = true,
-                IsFolderPicker = true,
-                EnsurePathExists = true,
-                EnsureValidNames = true,
+                ValidateNames = true,
                 Multiselect = false,
                 Title = title
             };
 
-            if (openFolder.ShowDialog() != CommonFileDialogResult.Ok)
+            if (!(bool)openFolder.ShowDialog())
             {
                 ParallelLogger.Log("[WARNING] No folder specified.");
                 return null;
             }
 
-            return openFolder.FileName;
+            return openFolder.FolderName;
         }
     }
 }
