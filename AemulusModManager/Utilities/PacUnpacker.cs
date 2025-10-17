@@ -28,6 +28,39 @@ namespace AemulusModManager
             }
         }
 
+        public static void ExtractWith7Zip(string filePath, string outputPath, string filter)
+        {
+            var config = AemulusConfig.Instance;
+            string _7zDir = @$"{config.aemPath}\Dependencies\7z\7z.exe";
+
+            if (!File.Exists(filePath))
+            {
+                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {filePath}. Please correct the file path in config.");
+                return;
+            }
+            if (!File.Exists(_7zDir))
+            {
+                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
+                return;
+            }
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = _7zDir,
+                UseShellExecute = false,
+                Arguments = $"x -y \"{filePath}\" -o\"{outputPath}\" {filter}"
+            };
+
+            using (Process process = new Process())
+            {
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+            }
+        }
+
         //P1PSP
         public static async Task UnzipAndUnBin(string iso)
         {
@@ -96,63 +129,27 @@ namespace AemulusModManager
         public static async Task Unzip(string iso)
         {
             AemulusConfig config = AemulusConfig.Instance;
-            const string fileExtensionsToExtract = "*.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC";
-            string _7zDir = @$"{config.aemPath}\Dependencies\7z\7z.exe";
             string folderToExtract = $@"{config.aemPath}\Original\Persona 3 FES";
+            const string filesFilter = "*.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC -r";
 
             if (!File.Exists(iso))
             {
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {iso}. Please correct the file path in config.");
                 return;
             }
-            if (!File.Exists(_7zDir))
-            {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
-                return;
-            }
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = _7zDir,
-                UseShellExecute = false
-            };
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Mouse.OverrideCursor = Cursors.Wait;
             });
 
-            startInfo.Arguments = $"x -y \"{iso}\" -o\"{folderToExtract}\" BTL.CVM DATA.CVM";
-            Utilities.ParallelLogger.Log($"[INFO] Extracting BTL.CVM and DATA.CVM from {iso}");
-            using (Process process = new Process())
-            {
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-            }
-
-            startInfo.Arguments = "x -y \"" + $@"{folderToExtract}\BTL.CVM" + "\" -o\"" + $@"{folderToExtract}\BTL" + $"\" {fileExtensionsToExtract} -r";
-            Utilities.ParallelLogger.Log($"[INFO] Extracting base files from BTL.CVM");
-            using (Process process = new Process())
-            {
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-            }
-
-            startInfo.Arguments = "x -y \"" + $@"{folderToExtract}\DATA.CVM" + "\" -o\"" + $@"{folderToExtract}\DATA" + $"\" {fileExtensionsToExtract} -r";
-            Utilities.ParallelLogger.Log($"[INFO] Extracting base files from DATA.CVM");
-            using (Process process = new Process())
-            {
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-            }
-
+            ExtractWith7Zip(iso, folderToExtract, "BTL.CVM DATA.CVM");
+            ExtractWith7Zip($@"{folderToExtract}\BTL.CVM", $@"{folderToExtract}\BTL", filesFilter);
+            ExtractWith7Zip($@"{folderToExtract}\DATA.CVM", $@"{folderToExtract}\DATA", filesFilter);
             File.Delete($@"{folderToExtract}\BTL.CVM");
             File.Delete($@"{folderToExtract}\DATA.CVM");
+
+            Utilities.ParallelLogger.Log($"[INFO] Extracting base files from DATA.CVM");
             ExtractWantedFiles(folderToExtract);
             Utilities.ParallelLogger.Log($"[INFO] Finished unpacking base files!");
 
