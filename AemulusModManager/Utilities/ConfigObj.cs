@@ -22,7 +22,9 @@ namespace AemulusModManager
     public sealed class AemulusConfig
     {
 
-        private static AemulusConfig _instance = null;
+        private static readonly Lazy<AemulusConfig> _instance =
+            new Lazy<AemulusConfig>(() => new AemulusConfig());
+        public static AemulusConfig Instance => _instance.Value;
         private AemulusConfig() { }
         private XmlSerializer xs;
 
@@ -52,33 +54,21 @@ namespace AemulusModManager
         public double? Width { get; set; }
         public bool Maximized { get; set; }
 
-        public static AemulusConfig Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new AemulusConfig();
-                }
-                return _instance;
-            }
-        }
-
         public void InitConfig()
         {
-            _instance.p3fConfig = new ConfigP3F();
-            _instance.p3pConfig = new ConfigP3P();
-            _instance.p4gConfig = new ConfigP4G();
-            _instance.p4gVitaConfig = new ConfigP4GVita();
-            _instance.p5Config = new ConfigP5();
-            _instance.p5rConfig = new ConfigP5R();
-            _instance.p5rSwitchConfig = new ConfigP5RSwitch();
-            _instance.p5sConfig = new ConfigP5S();
-            _instance.pqConfig = new ConfigPQ();
-            _instance.pq2Config = new ConfigPQ2();
-            _instance.p1pspConfig = new ConfigP1PSP();
+            Instance.p3fConfig = new ConfigP3F();
+            Instance.p3pConfig = new ConfigP3P();
+            Instance.p4gConfig = new ConfigP4G();
+            Instance.p4gVitaConfig = new ConfigP4GVita();
+            Instance.p5Config = new ConfigP5();
+            Instance.p5rConfig = new ConfigP5R();
+            Instance.p5rSwitchConfig = new ConfigP5RSwitch();
+            Instance.p5sConfig = new ConfigP5S();
+            Instance.pqConfig = new ConfigPQ();
+            Instance.pq2Config = new ConfigPQ2();
+            Instance.p1pspConfig = new ConfigP1PSP();
 
-            _instance.aemPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            Instance.aemPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             xs = new XmlSerializer(typeof(AemulusConfig));
         }
