@@ -1,4 +1,4 @@
-﻿namespace AemulusModManager.Utilities.Windows
+﻿namespace AemulusModManager.Utilities
 {
     public static class Games
     {
