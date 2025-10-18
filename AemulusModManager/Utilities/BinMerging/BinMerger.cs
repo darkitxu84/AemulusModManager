@@ -1,4 +1,5 @@
-﻿using AemulusModManager.Utilities.AwbMerging;
+﻿using AemulusModManager.Utilities;
+using AemulusModManager.Utilities.AwbMerging;
 using AemulusModManager.Utilities.FileMerging;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace AemulusModManager
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
             startInfo.FileName = $"\"{exePath}\"";
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = args;
@@ -33,39 +35,17 @@ namespace AemulusModManager
             {
                 process.StartInfo = startInfo;
                 process.Start();
-
-                // Add this: wait until process does its work
-                process.WaitForExit();
-            }
-        }
-
-        public static List<string> getFileContents(string path)
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = true;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.FileName = $"\"{exePath}\"";
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.Arguments = $"list \"{path}\"";
-            List<string> contents = new List<string>();
-            using (Process process = new Process())
-            {
-                process.StartInfo = startInfo;
-                process.Start();
                 while (!process.StandardOutput.EndOfStream)
                 {
                     string line = process.StandardOutput.ReadLine();
-                    if (!line.Contains(" "))
-                    {
-                        contents.Add(line);
-                    }
+                    ParallelLogger.Log($"[INFO] PACKcmd: {line}");
                 }
+
                 // Add this: wait until process does its work
                 process.WaitForExit();
             }
-            return contents;
         }
+
         private static int commonPrefixUtil(String str1, String str2)
         {
             String result = "";
@@ -608,7 +588,7 @@ namespace AemulusModManager
                         string binFolder = Path.ChangeExtension(file, null);
 
                         // Get contents of init_free
-                        List<string> contents = getFileContents(bin);
+                        List<string> contents = PAKUtils.GetFileContents(bin);
 
                         // Unpack archive for future unpacking
                         string temp = $"{binFolder}_temp";
@@ -693,7 +673,7 @@ namespace AemulusModManager
                                 || Path.GetExtension(longestPrefix).ToLower() == ".pack")
                                 {
                                     string file2 = $@"{temp}\{longestPrefix.Replace("/", "\\")}";
-                                    List<string> contents2 = getFileContents(file2);
+                                    List<string> contents2 = PAKUtils.GetFileContents(file2);
 
                                     List<string> split = new List<string>(binPath.Split(char.Parse("/")));
                                     int numPrefixFolders = longestPrefix.Split(char.Parse("/")).Length;
@@ -730,7 +710,7 @@ namespace AemulusModManager
                                         {
                                             string file3 = $@"{temp}\{Path.ChangeExtension(longestPrefix.Replace("/", "\\"), null)}\{longestPrefix2.Replace("/", "\\")}";
                                             PAKPackCMD($"unpack \"{file2}\"");
-                                            List<string> contents3 = getFileContents(file3);
+                                            List<string> contents3 = PAKUtils.GetFileContents(file3);
 
                                             List<string> split2 = new List<string>(binPath2.Split(char.Parse("/")));
                                             int numPrefixFolders2 = longestPrefix2.Split(char.Parse("/")).Length;

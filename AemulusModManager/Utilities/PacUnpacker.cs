@@ -1,4 +1,5 @@
-﻿using CriFsV2Lib;
+﻿using AemulusModManager.Utilities;
+using CriFsV2Lib;
 using CriFsV2Lib.Definitions.Interfaces;
 using CriFsV2Lib.Definitions.Structs;
 using CriFsV2Lib.Definitions.Utilities;
@@ -25,39 +26,6 @@ namespace AemulusModManager
             {
                 FullPath = _fullPath;
                 File = _file;
-            }
-        }
-
-        public static void ExtractWith7Zip(string filePath, string outputPath, string filter)
-        {
-            var config = AemulusConfig.Instance;
-            string _7zDir = @$"{config.aemPath}\Dependencies\7z\7z.exe";
-
-            if (!File.Exists(filePath))
-            {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {filePath}. Please correct the file path in config.");
-                return;
-            }
-            if (!File.Exists(_7zDir))
-            {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
-                return;
-            }
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = _7zDir,
-                UseShellExecute = false,
-                Arguments = $"x -y \"{filePath}\" -o\"{outputPath}\" {filter}"
-            };
-
-            using (Process process = new Process())
-            {
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
             }
         }
 
@@ -129,7 +97,7 @@ namespace AemulusModManager
         public static async Task Unzip(string iso)
         {
             AemulusConfig config = AemulusConfig.Instance;
-            string folderToExtract = $@"{config.aemPath}\Original\Persona 3 FES";
+            string pathToExtract = $@"{config.aemPath}\Original\Persona 3 FES";
             const string filesFilter = "*.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC -r";
 
             if (!File.Exists(iso))
@@ -143,14 +111,14 @@ namespace AemulusModManager
                 Mouse.OverrideCursor = Cursors.Wait;
             });
 
-            ExtractWith7Zip(iso, folderToExtract, "BTL.CVM DATA.CVM");
-            ExtractWith7Zip($@"{folderToExtract}\BTL.CVM", $@"{folderToExtract}\BTL", filesFilter);
-            ExtractWith7Zip($@"{folderToExtract}\DATA.CVM", $@"{folderToExtract}\DATA", filesFilter);
-            File.Delete($@"{folderToExtract}\BTL.CVM");
-            File.Delete($@"{folderToExtract}\DATA.CVM");
+            ZipUtils.Extract(iso, pathToExtract, filter: "BTL.CVM DATA.CVM");
+            ZipUtils.Extract($@"{pathToExtract}\BTL.CVM", $@"{pathToExtract}\BTL", filesFilter);
+            ZipUtils.Extract($@"{pathToExtract}\DATA.CVM", $@"{pathToExtract}\DATA", filesFilter);
+            File.Delete($@"{pathToExtract}\BTL.CVM");
+            File.Delete($@"{pathToExtract}\DATA.CVM");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting base files from DATA.CVM");
-            ExtractWantedFiles(folderToExtract);
+            ExtractWantedFiles(pathToExtract);
             Utilities.ParallelLogger.Log($"[INFO] Finished unpacking base files!");
 
             Application.Current.Dispatcher.Invoke(() =>
@@ -747,25 +715,25 @@ namespace AemulusModManager
             {
                 ".gsd", ".tpc"
             };
-            var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).
-                Where(file => extensionsToExtract.Contains(Path.GetExtension(file)));
+            var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
+                .Where(file => extensionsToExtract.Contains(Path.GetExtension(file)));
 
             foreach (string file in files)
             {
-                List<string> contents = binMerge.getFileContents(file).Select(x => x.ToLower()).ToList();
+                List<string> contents = PAKUtils.GetFileContents(file);
                 // Check if there are any files we want (or files that could have files we want) and unpack them if so
-                bool containersFound = contents.Exists(x => binMerge.containerExtensions.Contains(Path.GetExtension(file)));
+                bool containersFound = contents != null && contents.Exists(x => binMerge.containerExtensions.Contains(Path.GetExtension(file)));
+
                 if (contents.Exists(x => x.ToLower().EndsWith(".bf") || x.ToLower().EndsWith(".bmd") || x.ToLower().EndsWith(".pm1") || x.ToLower().EndsWith(".dat") || x.ToLower().EndsWith(".ctd") || x.ToLower().EndsWith(".ftd") || x.ToLower().EndsWith(".spd") || x.ToLower().EndsWith(".acb") || x.ToLower().EndsWith(".awb") || containersFound))
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking {file}");
-                    binMerge.PAKPackCMD($"unpack \"{file}\"");
+                    PAKUtils.Unpack(file);
 
                     // Search the location of the unpacked container for wanted files
                     if (containersFound)
                         ExtractWantedFiles(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file)));
                 }
             }
-
         }
 
         public static IEnumerable<IEnumerable<T>> Split<T>(this T[] array, int size)
