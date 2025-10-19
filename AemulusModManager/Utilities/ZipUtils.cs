@@ -14,8 +14,7 @@ namespace AemulusModManager.Utilities
         // use 7Zip to extract 
         public static bool Extract(string filePath, string outputPath, string filter = "")
         {
-            var config = AemulusConfig.Instance;
-            string _7zDir = @$"{config.aemPath}\Dependencies\7z\7z.exe";
+            string _7zDir = @$"{Folders.Dependecies}\7z\7z.exe";
 
             if (!File.Exists(filePath))
             {

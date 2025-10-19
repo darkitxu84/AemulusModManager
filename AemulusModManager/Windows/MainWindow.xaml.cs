@@ -1866,9 +1866,9 @@ namespace AemulusModManager
         }
         private async void MergeCommand()
         {
-            if ((game == "Persona 5 Strikers" && !Directory.Exists($@"{config.aemPath}\Original\{game}\motor_rsc"))
-                    || (game == "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{config.aemPath}\Original\{game}", "*.bin", SearchOption.AllDirectories).Count() == 0)
-                    || (game != "Persona 5 Strikers" && game != "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{config.aemPath}\Original\{game}", "*.bf", SearchOption.AllDirectories).Count() == 0))
+            if ((game == "Persona 5 Strikers" && !Directory.Exists($@"{Folders.Original}\{game}\motor_rsc"))
+                    || (game == "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{Folders.Original}\{game}", "*.bin", SearchOption.AllDirectories).Count() == 0)
+                    || (game != "Persona 5 Strikers" && game != "Persona 1 (PSP)" && Directory.EnumerateFiles($@"{Folders.Original} \{game}", "*.bf", SearchOption.AllDirectories).Count() == 0))
             {
                 Utilities.ParallelLogger.Log("[WARNING] Aemulus can't find your Base files in the Original folder.");
                 Utilities.ParallelLogger.Log($"[WARNING] Attempting to unpack/backup base files first.");
@@ -2060,7 +2060,7 @@ namespace AemulusModManager
             // Check if the games files need to be unpacked again (for flow merging)
             if (game != "Persona 5 Strikers" && game != "Persona 1 (PSP)" && lastUnpacked == null)
             {
-                var bfFiles = Directory.EnumerateFiles($@"{config.aemPath}\Original\{game}", "*.bf", SearchOption.AllDirectories);
+                var bfFiles = Directory.EnumerateFiles($@"{Folders.Original}\{game}", "*.bf", SearchOption.AllDirectories);
                 if (bfFiles.Count() == 0)
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking game files to allow bf merging for {game}.");

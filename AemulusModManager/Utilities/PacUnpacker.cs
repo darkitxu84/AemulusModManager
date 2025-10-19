@@ -32,61 +32,41 @@ namespace AemulusModManager
         //P1PSP
         public static async Task UnzipAndUnBin(string iso)
         {
-            AemulusConfig config = AemulusConfig.Instance;
+            string pathToExtract = $@"{Folders.Original}\{Games.P1PSP}";
 
             if (!File.Exists(iso))
             {
                 Console.Write($"[ERROR] Couldn't find {iso}. Please correct the file path in config.");
                 return;
             }
-            Directory.CreateDirectory($@"{config.aemPath}\Original\Persona 1 (PSP)");
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                FileName = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\7z\7z.exe"
-            };
-            if (!File.Exists(startInfo.FileName))
-            {
-                Console.Write($"[ERROR] Couldn't find {startInfo.FileName}. Please check if it was blocked by your anti-virus.");
-                return;
-            }
+            Directory.CreateDirectory(pathToExtract);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Mouse.OverrideCursor = Cursors.Wait;
             });
 
+            ZipUtils.Extract(iso, pathToExtract);
+            File.Move($@"{pathToExtract}\SYSDIR\EBOOT.BIN", $@"{pathToExtract}\SYSDIR\EBOOT_ENC.BIN");
 
-            var tasks = new List<Task>();
-
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.UseShellExecute = false;
-            startInfo.Arguments = $"x -y \"{iso}\" -o\"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)";
-            Utilities.ParallelLogger.Log($"[INFO] Extracting files from {iso}");
-            using (Process process = new Process())
+            ProcessStartInfo ebootDecoder = new ProcessStartInfo
             {
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-            }
-            File.Move($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)\PSP_GAME\SYSDIR\EBOOT.BIN", $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)\PSP_GAME\SYSDIR\EBOOT_ENC.BIN");
-            ProcessStartInfo ebootDecoder = new ProcessStartInfo();
-            ebootDecoder.CreateNoWindow = true;
-            ebootDecoder.UseShellExecute = false;
-            ebootDecoder.FileName = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\\DecEboot\deceboot.exe";
-            ebootDecoder.WindowStyle = ProcessWindowStyle.Hidden;
-            ebootDecoder.Arguments = "\"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)\PSP_GAME\SYSDIR\EBOOT_ENC.BIN" + "\" \"" + $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)\PSP_GAME\SYSDIR\EBOOT.BIN" + "\"";
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                FileName = $@"{Folders.Dependecies}\DecEboot\deceboot.exe",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = "\"" + $@"{pathToExtract}\PSP_GAME\SYSDIR\EBOOT_ENC.BIN" + "\" \"" + $@"{pathToExtract}\PSP_GAME\SYSDIR\EBOOT_ENC.BIN" + "\""
+            };
+
             Utilities.ParallelLogger.Log($"[INFO] Decrypting EBOOT.BIN");
             using (Process process = new Process())
             {
                 process.StartInfo = ebootDecoder;
                 process.Start();
-
-                // Add this: wait until process does its work
                 process.WaitForExit();
             }
-            File.Delete($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 1 (PSP)\PSP_GAME\SYSDIR\EBOOT_ENC.BIN");
+            File.Delete($@"{pathToExtract}\PSP_GAME\SYSDIR\EBOOT_ENC.BIN");
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Mouse.OverrideCursor = null;
@@ -96,8 +76,7 @@ namespace AemulusModManager
         // P3F
         public static async Task Unzip(string iso)
         {
-            AemulusConfig config = AemulusConfig.Instance;
-            string pathToExtract = $@"{config.aemPath}\Original\Persona 3 FES";
+            string pathToExtract = $@"{Folders.Original}\{Games.P3F}";
             const string filesFilter = "*.BIN *.PAK *.PAC *.TBL *.SPR *.BF *.BMD *.PM1 *.bf *.bmd *.pm1 *.FPC -r";
 
             if (!File.Exists(iso))
@@ -269,7 +248,6 @@ namespace AemulusModManager
                 Mouse.OverrideCursor = null;
             });
         }
-
 
         public static async Task UnpackP5CPK(string directory)
         {
