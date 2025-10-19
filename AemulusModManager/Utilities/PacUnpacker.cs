@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -162,9 +161,9 @@ namespace AemulusModManager
             Directory.CreateDirectory(pathToExtract);
 
             List<string> pacs = new List<string>();
-            List<string> globs = new List<string> 
-            { 
-                "*[!0-9].bin", "*2[0-1][0-9].bin", "*.arc", "*.pac", "*.pack", "*.bf", "*.bmd", "*.pm1" 
+            List<string> globs = new List<string>
+            {
+                "*[!0-9].bin", "*2[0-1][0-9].bin", "*.arc", "*.pac", "*.pack", "*.bf", "*.bmd", "*.pm1"
             };
 
             switch (cpk)
@@ -260,8 +259,8 @@ namespace AemulusModManager
             string pathToExtract = $@"{Folders.Original}\{Games.P5}";
             Directory.CreateDirectory(pathToExtract);
 
-            if (File.Exists($@"{directory}\ps3.cpk.66600") 
-                && File.Exists($@"{directory}\ps3.cpk.66601") 
+            if (File.Exists($@"{directory}\ps3.cpk.66600")
+                && File.Exists($@"{directory}\ps3.cpk.66601")
                 && File.Exists($@"{directory}\ps3.cpk.66602")
                 && !File.Exists($@"{directory}\ps3.cpk"))
             {

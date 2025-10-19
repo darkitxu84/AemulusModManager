@@ -1,6 +1,5 @@
 ﻿using AtlusFileSystemLibrary.Common.IO;
 using AtlusFileSystemLibrary.FileSystems.PAK;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace AemulusModManager.Utilities
             {
                 ParallelLogger.Log($"[ERROR] {path} is an invalid PAK file.");
                 return false;
-            }   
+            }
 
             return true;
         }
@@ -36,7 +35,7 @@ namespace AemulusModManager.Utilities
                 ParallelLogger.Log($"[ERROR] Could not get file contents of {path}");
                 return null;
             }
-            using (pak) 
+            using (pak)
             {
                 var enumeratedFiles = pak.EnumerateFiles().ToList();
                 return enumeratedFiles;

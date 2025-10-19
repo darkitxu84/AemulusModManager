@@ -8,35 +8,22 @@ namespace AemulusModManager.Utilities.Windows
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            switch ((string)value)
+            return (string)value switch
             {
-                case "BugFix":
-                    return new SolidColorBrush(Color.FromRgb(255, 78, 78));
-                case "Overhaul":
-                    return new SolidColorBrush(Color.FromRgb(255, 78, 78));
-                case "Addition":
-                    return new SolidColorBrush(Color.FromRgb(108, 177, 255));
-                case "Feature":
-                    return new SolidColorBrush(Color.FromRgb(108, 177, 255));
-                case "Tweak":
-                    return new SolidColorBrush(Color.FromRgb(255, 94, 157));
-                case "Improvement":
-                    return new SolidColorBrush(Color.FromRgb(255, 94, 157));
-                case "Optimization":
-                    return new SolidColorBrush(Color.FromRgb(255, 94, 157));
-                case "Adjustment":
-                    return new SolidColorBrush(Color.FromRgb(110, 255, 108));
-                case "Suggestion":
-                    return new SolidColorBrush(Color.FromRgb(110, 255, 108));
-                case "Ammendment":
-                    return new SolidColorBrush(Color.FromRgb(110, 255, 108));
-                case "Removal":
-                    return new SolidColorBrush(Color.FromRgb(153, 153, 153));
-                case "Refactor":
-                    return new SolidColorBrush(Color.FromRgb(153, 153, 153));
-                default:
-                    return new SolidColorBrush(Color.FromRgb(0, 0, 0));
-            }
+                "BugFix" => new SolidColorBrush(Color.FromRgb(255, 78, 78)),
+                "Overhaul" => new SolidColorBrush(Color.FromRgb(255, 78, 78)),
+                "Addition" => new SolidColorBrush(Color.FromRgb(108, 177, 255)),
+                "Feature" => new SolidColorBrush(Color.FromRgb(108, 177, 255)),
+                "Tweak" => new SolidColorBrush(Color.FromRgb(255, 94, 157)),
+                "Improvement" => new SolidColorBrush(Color.FromRgb(255, 94, 157)),
+                "Optimization" => new SolidColorBrush(Color.FromRgb(255, 94, 157)),
+                "Adjustment" => new SolidColorBrush(Color.FromRgb(110, 255, 108)),
+                "Suggestion" => new SolidColorBrush(Color.FromRgb(110, 255, 108)),
+                "Ammendment" => new SolidColorBrush(Color.FromRgb(110, 255, 108)),
+                "Removal" => new SolidColorBrush(Color.FromRgb(153, 153, 153)),
+                "Refactor" => new SolidColorBrush(Color.FromRgb(153, 153, 153)),
+                _ => new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
