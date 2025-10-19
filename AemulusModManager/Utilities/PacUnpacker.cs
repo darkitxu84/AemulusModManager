@@ -718,13 +718,21 @@ namespace AemulusModManager
             var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
                 .Where(file => extensionsToExtract.Contains(Path.GetExtension(file)));
 
+            var wantedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ".bf", ".bmd", ".pm1", ".dat", ".ctd", ".ftd", ".spd", ".acb", ".awb"
+            };
             foreach (string file in files)
             {
                 List<string> contents = PAKUtils.GetFileContents(file);
-                // Check if there are any files we want (or files that could have files we want) and unpack them if so
-                bool containersFound = contents != null && contents.Exists(x => binMerge.containerExtensions.Contains(Path.GetExtension(file)));
+                // i don't know why but there are invalid pak files in some games 
+                if (contents == null)
+                    continue;
 
-                if (contents.Exists(x => x.ToLower().EndsWith(".bf") || x.ToLower().EndsWith(".bmd") || x.ToLower().EndsWith(".pm1") || x.ToLower().EndsWith(".dat") || x.ToLower().EndsWith(".ctd") || x.ToLower().EndsWith(".ftd") || x.ToLower().EndsWith(".spd") || x.ToLower().EndsWith(".acb") || x.ToLower().EndsWith(".awb") || containersFound))
+                // Check if there are any files we want (or files that could have files we want) and unpack them if so
+                bool containersFound = contents.Exists(x => binMerge.containerExtensions.Contains(Path.GetExtension(file)));
+
+                if (contents.Exists(x => wantedExtensions.Contains(Path.GetExtension(x)) || containersFound))
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking {file}");
                     PAKUtils.Unpack(file);
