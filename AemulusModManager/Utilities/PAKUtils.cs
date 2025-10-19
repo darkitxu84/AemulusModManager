@@ -39,7 +39,6 @@ namespace AemulusModManager.Utilities
             using (pak) 
             {
                 var enumeratedFiles = pak.EnumerateFiles().ToList();
-                ParallelLogger.Log($"[INFO] GetFileContets: {String.Join(',', enumeratedFiles)}");
                 return enumeratedFiles;
             }
         }

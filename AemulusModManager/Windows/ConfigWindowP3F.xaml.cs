@@ -196,14 +196,12 @@ namespace AemulusModManager
         {
             main.p3fConfig.usePnachNewFormat = true;
             main.updateConfig();
-            Utilities.ParallelLogger.Log($"[INFO] Using Pnach 2.0 for cheats");
         }
 
         private void UsePnachNewFormatUnchecked(object sender, RoutedEventArgs e)
         {
             main.p3fConfig.usePnachNewFormat = false;
             main.updateConfig();
-            Utilities.ParallelLogger.Log($"[INFO] Using old Pnach format for cheats");
         }
 
         private void SetupISOShortcut(object sender, RoutedEventArgs e)
