@@ -13,6 +13,5 @@
         public const string P5Rswitch = "Persona 5 Royal (Switch)";
         public const string PQ = "Persona Q";
         public const string PQ2 = "Persona Q2";
-
     }
 }

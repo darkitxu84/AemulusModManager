@@ -15,7 +15,7 @@ namespace AemulusModManager.Utilities
         public static readonly string Original;
         public static readonly string Packages;
         public static readonly string Libraries;
-        public static readonly string Dependecies;
+        public static readonly string Dependencies;
 
         static Folders()
         {
@@ -23,7 +23,7 @@ namespace AemulusModManager.Utilities
             Original = $@"{Root}\Original";
             Packages = $@"{Root}\Packages";
             Libraries = $@"{Root}\Libraries";
-            Dependecies = $@"{Root}\Dependencies";
+            Dependencies = $@"{Root}\Dependencies";
         }
     }
 }
