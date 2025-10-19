@@ -33,6 +33,7 @@ namespace AemulusModManager
         public static async Task UnzipAndUnBin(string iso)
         {
             string pathToExtract = $@"{Folders.Original}\{Games.P1PSP}";
+            string ebootPath = $@"{pathToExtract}\PSP_GAME\SYSDIR";
 
             if (!File.Exists(iso))
             {
@@ -47,7 +48,7 @@ namespace AemulusModManager
             });
 
             ZipUtils.Extract(iso, pathToExtract);
-            File.Move($@"{pathToExtract}\SYSDIR\EBOOT.BIN", $@"{pathToExtract}\SYSDIR\EBOOT_ENC.BIN");
+            File.Move($@"{ebootPath}\EBOOT.BIN", $@"{ebootPath}\EBOOT_ENC.BIN");
 
             ProcessStartInfo ebootDecoder = new ProcessStartInfo
             {
@@ -55,7 +56,7 @@ namespace AemulusModManager
                 UseShellExecute = false,
                 FileName = $@"{Folders.Dependecies}\DecEboot\deceboot.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = "\"" + $@"{pathToExtract}\PSP_GAME\SYSDIR\EBOOT_ENC.BIN" + "\" \"" + $@"{pathToExtract}\PSP_GAME\SYSDIR\EBOOT_ENC.BIN" + "\""
+                Arguments = "\"" + $@"{ebootPath}\EBOOT_ENC.BIN" + "\" \"" + $@"{ebootPath}\EBOOT_ENC.BIN" + "\""
             };
 
             Utilities.ParallelLogger.Log($"[INFO] Decrypting EBOOT.BIN");
@@ -65,7 +66,7 @@ namespace AemulusModManager
                 process.Start();
                 process.WaitForExit();
             }
-            File.Delete($@"{pathToExtract}\PSP_GAME\SYSDIR\EBOOT_ENC.BIN");
+            File.Delete($@"{ebootPath}\EBOOT_ENC.BIN");
 
             Application.Current.Dispatcher.Invoke(() =>
             {

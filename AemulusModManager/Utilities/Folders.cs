@@ -23,7 +23,7 @@ namespace AemulusModManager.Utilities
             Original = $@"{Root}\Original";
             Packages = $@"{Root}\Packages";
             Libraries = $@"{Root}\Libraries";
-            Dependecies = $@"{Root}\Dependecies";
+            Dependecies = $@"{Root}\Dependencies";
         }
     }
 }
