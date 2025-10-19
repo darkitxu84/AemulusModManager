@@ -5,13 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Navigation;
 
 namespace AemulusModManager.Utilities
 {
     public static class ZipUtils
     {
         // use 7Zip to extract 
-        public static void Extract(string filePath, string outputPath, string filter = "")
+        public static bool Extract(string filePath, string outputPath, string filter = "")
         {
             var config = AemulusConfig.Instance;
             string _7zDir = @$"{config.aemPath}\Dependencies\7z\7z.exe";
@@ -19,12 +20,12 @@ namespace AemulusModManager.Utilities
             if (!File.Exists(filePath))
             {
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {filePath}.");
-                return;
+                return false;
             }
             if (!File.Exists(_7zDir))
             {
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
-                return;
+                return false;
             }
 
             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -48,6 +49,8 @@ namespace AemulusModManager.Utilities
                 ParallelLogger.Log($"[INFO] 7zip: {line}");
             }
             process.WaitForExit();
+
+            return true;
         }
     }
 }

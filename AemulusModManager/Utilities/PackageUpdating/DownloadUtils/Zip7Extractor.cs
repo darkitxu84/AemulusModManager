@@ -16,27 +16,11 @@ namespace AemulusModManager.Utilities.PackageUpdating.DownloadUtils
         public async Task ExtractPackageAsync(string sourceFilePath, string destDirPath,
             IProgress<double>? progress = null, CancellationToken cancellationToken = default)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = true;
-            startInfo.FileName = @$"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Dependencies\7z\7z.exe";
-            if (!File.Exists(startInfo.FileName))
-            {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {startInfo.FileName}. Please check if it was blocked by your anti-virus.");
-                return;
-            }
-            // Extract the file
-            startInfo.Arguments = $"x -y \"{sourceFilePath}\" -o\"{destDirPath}\"";
             Utilities.ParallelLogger.Log($"[INFO] Extracting {sourceFilePath}");
+            bool success = ZipUtils.Extract(sourceFilePath, destDirPath);
+            if (!success)
+                return;
 
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.UseShellExecute = false;
-
-            using (Process process = new Process())
-            {
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-            }
             // TODO Check if it actually succeeded (by reading the command output I guess)
             Utilities.ParallelLogger.Log($"[INFO] Done Extracting {sourceFilePath}");
             File.Delete(@$"{sourceFilePath}");
@@ -47,6 +31,5 @@ namespace AemulusModManager.Utilities.PackageUpdating.DownloadUtils
             Directory.Delete(destDirPath);
             Directory.Move($@"{parentPath}\Aemulus", destDirPath);
         }
-
     }
 }
