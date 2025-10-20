@@ -10,6 +10,8 @@ namespace AemulusModManager.Utilities
         public static readonly string Packages;
         public static readonly string Libraries;
         public static readonly string Dependencies;
+        public static readonly string Config;
+        public static readonly string Downloads;
 
         static Folders()
         {
@@ -18,6 +20,8 @@ namespace AemulusModManager.Utilities
             Packages = $@"{Root}\Packages";
             Libraries = $@"{Root}\Libraries";
             Dependencies = $@"{Root}\Dependencies";
+            Config = $@"{Root}\Config";
+            Downloads = $@"{Root}\Downloads";
         }
     }
 }

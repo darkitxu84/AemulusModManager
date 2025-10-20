@@ -3422,12 +3422,22 @@ namespace AemulusModManager
 
         private void Kofi_Click(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("https://www.ko-fi.com/tekka");
+            var ps = new ProcessStartInfo("https://www.ko-fi.com/tekka")
+            {
+                UseShellExecute = true,
+                Verb = "open"
+            };
+            Process.Start(ps);
         }
 
         private void Setup_Click(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("https://aemulus.cep.one/install");
+            var ps = new ProcessStartInfo("https://aemulus.cep.one/install")
+            {
+                UseShellExecute = true,
+                Verb = "open"
+            };
+            Process.Start(ps);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
