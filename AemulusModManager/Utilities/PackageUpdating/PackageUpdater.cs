@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -25,7 +24,7 @@ namespace AemulusModManager
         private readonly HttpClient client;
         private GitHubClient gitHubClient;
         private UpdateProgressBox progressBox;
-        private string assemblyLocation;
+        private readonly string assemblyLocation;
 
         public PackageUpdater()
         {
@@ -35,26 +34,23 @@ namespace AemulusModManager
         }
         private string ConvertUrl(string oldUrl)
         {
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(oldUrl);
-            webRequest.AllowAutoRedirect = false;  // IMPORTANT
+            var handler = new HttpClientHandler { AllowAutoRedirect = false };
+            using var httpClient = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(10) };
+            using var request = new HttpRequestMessage(HttpMethod.Head, oldUrl);
 
-            webRequest.Timeout = 10000;           // timeout 10s
-            webRequest.Method = "HEAD";
-            // Get the response ...
-            HttpWebResponse webResponse;
-            using (webResponse = (HttpWebResponse)webRequest.GetResponse())
+            try
             {
-                // Now look to see if it's a redirect
-                if ((int)webResponse.StatusCode >= 300 && (int)webResponse.StatusCode <= 399)
-                {
-                    string uriString = webResponse.Headers["Location"];
-                    webResponse.Close(); // don't forget to close it - or bad things happen!
-                    return uriString;
-                }
-                else
-                    return oldUrl;
+                using var response = httpClient.Send(request);
+                if ((int)response.StatusCode >= 300 && (int)response.StatusCode <= 399 && response.Headers.Location != null)
+                    return response.Headers.Location.ToString();
 
+                return oldUrl;
             }
+            catch
+            {
+                return oldUrl;
+            }
+
         }
         public async Task<bool> CheckForUpdate(DisplayedMetadata[] rows, string game, CancellationTokenSource cancellationToken, bool downloadingMissing = false)
         {

@@ -449,9 +449,8 @@ namespace AemulusModManager.Utilities.FileMerging
             {
                 byte[] file1Bytes = File.ReadAllBytes(file1);
                 byte[] file2Bytes = File.ReadAllBytes(file2);
-                var sha512 = new SHA512CryptoServiceProvider();
-                var hash1 = sha512.ComputeHash(file1Bytes);
-                var hash2 = sha512.ComputeHash(file2Bytes);
+                var hash1 = SHA512.HashData(file1Bytes);
+                var hash2 = SHA512.HashData(file2Bytes);
                 for (int i = 0; i < hash1.Length; i++)
                 {
                     if (hash1[i] == hash2[i])
