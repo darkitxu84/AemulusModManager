@@ -1,4 +1,5 @@
 ﻿using AemulusModManager.Utilities;
+using AemulusModManager.Utilities.ToolsManager;
 using CriFsV2Lib;
 using CriFsV2Lib.Definitions.Interfaces;
 using CriFsV2Lib.Definitions.Structs;
@@ -608,7 +609,7 @@ namespace AemulusModManager
             };
             foreach (string file in files)
             {
-                List<string> contents = PAKUtils.GetFileContents(file);
+                List<string> contents = PAKPack.GetFileContents(file);
                 // i don't know why but there are invalid pak files in some games 
                 if (contents == null)
                     continue;
@@ -619,7 +620,7 @@ namespace AemulusModManager
                 if (contents.Exists(x => wantedExtensions.Contains(Path.GetExtension(x)) || containersFound))
                 {
                     Utilities.ParallelLogger.Log($"[INFO] Unpacking {file}");
-                    PAKUtils.Unpack(file);
+                    PAKPack.Unpack(file);
 
                     // Search the location of the unpacked container for wanted files
                     if (containersFound)

@@ -1,6 +1,7 @@
 ﻿using AemulusModManager.Utilities;
 using AemulusModManager.Utilities.AwbMerging;
 using AemulusModManager.Utilities.FileMerging;
+using AemulusModManager.Utilities.ToolsManager;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -588,7 +589,7 @@ namespace AemulusModManager
                         string binFolder = Path.ChangeExtension(file, null);
 
                         // Get contents of init_free
-                        List<string> contents = PAKUtils.GetFileContents(bin);
+                        List<string> contents = PAKPack.GetFileContents(bin);
 
                         // Unpack archive for future unpacking
                         string temp = $"{binFolder}_temp";
@@ -673,7 +674,7 @@ namespace AemulusModManager
                                 || Path.GetExtension(longestPrefix).ToLower() == ".pack")
                                 {
                                     string file2 = $@"{temp}\{longestPrefix.Replace("/", "\\")}";
-                                    List<string> contents2 = PAKUtils.GetFileContents(file2);
+                                    List<string> contents2 = PAKPack.GetFileContents(file2);
 
                                     List<string> split = new List<string>(binPath.Split(char.Parse("/")));
                                     int numPrefixFolders = longestPrefix.Split(char.Parse("/")).Length;
@@ -710,7 +711,7 @@ namespace AemulusModManager
                                         {
                                             string file3 = $@"{temp}\{Path.ChangeExtension(longestPrefix.Replace("/", "\\"), null)}\{longestPrefix2.Replace("/", "\\")}";
                                             PAKPackCMD($"unpack \"{file2}\"");
-                                            List<string> contents3 = PAKUtils.GetFileContents(file3);
+                                            List<string> contents3 = PAKPack.GetFileContents(file3);
 
                                             List<string> split2 = new List<string>(binPath2.Split(char.Parse("/")));
                                             int numPrefixFolders2 = longestPrefix2.Split(char.Parse("/")).Length;

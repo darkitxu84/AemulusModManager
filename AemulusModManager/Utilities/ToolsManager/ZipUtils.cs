@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace AemulusModManager.Utilities
+namespace AemulusModManager.Utilities.ToolsManager
 {
     public static class ZipUtils
     {
@@ -13,12 +13,12 @@ namespace AemulusModManager.Utilities
 
             if (!File.Exists(filePath))
             {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {filePath}.");
+                ParallelLogger.Log($"[ERROR] Couldn't find {filePath}.");
                 return false;
             }
             if (!File.Exists(_7zDir))
             {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
+                ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
                 return false;
             }
 
@@ -38,7 +38,7 @@ namespace AemulusModManager.Utilities
             while (!process.StandardOutput.EndOfStream)
             {
                 string line = process.StandardOutput.ReadLine();
-                if (String.IsNullOrWhiteSpace(line))
+                if (string.IsNullOrWhiteSpace(line))
                     continue;
                 ParallelLogger.Log($"[INFO] 7zip: {line}");
             }

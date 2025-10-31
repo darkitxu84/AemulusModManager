@@ -3,6 +3,7 @@ using AemulusModManager.Utilities.AwbMerging;
 using AemulusModManager.Utilities.FileMerging;
 using AemulusModManager.Utilities.KT;
 using AemulusModManager.Utilities.PackageUpdating;
+using AemulusModManager.Utilities.TblPatching;
 using AemulusModManager.Utilities.Windows;
 using AemulusModManager.Windows;
 using GongSolutions.Wpf.DragDrop.Utilities;
