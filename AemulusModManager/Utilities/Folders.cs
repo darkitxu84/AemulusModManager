@@ -12,6 +12,7 @@ namespace AemulusModManager.Utilities
         public static readonly string Dependencies;
         public static readonly string Config;
         public static readonly string Downloads;
+        public static readonly string FilteredCpkCsv;
 
         static Folders()
         {
@@ -22,6 +23,7 @@ namespace AemulusModManager.Utilities
             Dependencies = $@"{Root}\Dependencies";
             Config = $@"{Root}\Config";
             Downloads = $@"{Root}\Downloads";
+            FilteredCpkCsv = $@"{Dependencies}\FilteredCpkCsv";
         }
     }
 }

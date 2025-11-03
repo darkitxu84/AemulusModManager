@@ -47,23 +47,7 @@ namespace AemulusModManager
 
             ZipUtils.Extract(iso, pathToExtract);
             File.Move($@"{ebootPath}\EBOOT.BIN", $@"{ebootPath}\EBOOT_ENC.BIN");
-
-            ProcessStartInfo ebootDecoder = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                FileName = $@"{Folders.Dependencies}\DecEboot\deceboot.exe",
-                WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = "\"" + $@"{ebootPath}\EBOOT_ENC.BIN" + "\" \"" + $@"{ebootPath}\EBOOT_ENC.BIN" + "\""
-            };
-
-            Utilities.ParallelLogger.Log($"[INFO] Decrypting EBOOT.BIN");
-            using (Process process = new Process())
-            {
-                process.StartInfo = ebootDecoder;
-                process.Start();
-                process.WaitForExit();
-            }
+            DecEboot.Decrypt($@"{ebootPath}\EBOOT_ENC.BIN", $@"{ebootPath}\EBOOT.BIN");
             File.Delete($@"{ebootPath}\EBOOT_ENC.BIN");
 
             Utilities.ParallelLogger.Log("[INFO] Finished unpacking base files!");
@@ -118,19 +102,16 @@ namespace AemulusModManager
                 Mouse.OverrideCursor = Cursors.Wait;
             });
 
-            string pathToExtract = $@"{Folders.Original}\{Games.P3P}";
             const string umd0PathFilter = @"PSP_GAME\USRDIR\umd0.cpk";
+            string pathToExtract = $@"{Folders.Original}\{Games.P3P}";
+            string umd0Path = $@"{pathToExtract}\{umd0PathFilter}";
+            string[] umd0Files = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_umd0.csv");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting umd0.cpk from {iso}");
             ZipUtils.Extract(iso, pathToExtract, filter: umd0PathFilter);
-            string[] umd0Files = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_umd0.csv");
-            string umd0Path = $@"{pathToExtract}\{umd0PathFilter}";
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting files from umd0.cpk");
-            if (File.Exists(umd0Path))
-                CriFsUnpack(umd0Path, pathToExtract, umd0Files);
-            else
-                Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find {pathToExtract}\{umd0PathFilter}.");
+            CriFsUnpack(umd0Path, pathToExtract, umd0Files);
 
             Utilities.ParallelLogger.Log("[INFO] Unpacking extracted files");
             ExtractWantedFiles($@"{pathToExtract}\data");
@@ -188,38 +169,20 @@ namespace AemulusModManager
                     pacs.Add("data_c.cpk");
                     break;
             }
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                FileName = $@"{Folders.Dependencies}\Preappfile\preappfile.exe",
-                WindowStyle = ProcessWindowStyle.Hidden,
-                RedirectStandardInput = true,
-                UseShellExecute = false
-            };
-            if (!File.Exists(startInfo.FileName))
-            {
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {startInfo.FileName}. Please check if it was blocked by your anti-virus.");
-                return;
-            }
 
             foreach (var pac in pacs)
             {
                 Utilities.ParallelLogger.Log($"[INFO] Unpacking files for {pac}...");
+                string input = $@"{directory}\{pac}";
+                string output = $@"{pathToExtract}\{Path.GetFileNameWithoutExtension(pac)}";
                 foreach (var glob in globs)
                 {
-                    startInfo.Arguments = $@"-i ""{directory}\{pac}"" -o ""{pathToExtract}\{Path.GetFileNameWithoutExtension(pac)}"" --unpack-filter {glob}";
-                    using Process process = new Process();
-                    process.StartInfo = startInfo;
-                    process.Start();
-                    while (!process.HasExited)
-                    {
-                        string text = process.StandardOutput.ReadLine();
-                        if (!String.IsNullOrEmpty(text))
-                            Utilities.ParallelLogger.Log($"[INFO] {text}");
-                    }
+                    Preappfile.Unpack(input, output, unpackFilter: glob);
                 }
-                ExtractWantedFiles($@"{pathToExtract}\{Path.GetFileNameWithoutExtension(pac)}");
+                ExtractWantedFiles(output);
             }
+
+            // backup original cpk files
             if (File.Exists($@"{directory}\{cpk}") && !File.Exists($@"{pathToExtract}\{cpk}"))
             {
                 Utilities.ParallelLogger.Log($@"[INFO] Backing up {cpk}");
@@ -246,8 +209,8 @@ namespace AemulusModManager
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {directory}. Please correct the file path in config.");
                 return;
             }
-            if (!File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_data.csv")
-                || !File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_ps3.csv"))
+            if (!File.Exists($@"{Folders.FilteredCpkCsv}\filtered_data.csv")
+                || !File.Exists($@"{Folders.FilteredCpkCsv}\filtered_ps3.csv"))
             {
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV files used for unpacking in Dependencies\FilteredCpkCsv");
                 return;
@@ -258,14 +221,13 @@ namespace AemulusModManager
             });
 
             string pathToExtract = $@"{Folders.Original}\{Games.P5}";
-            Directory.CreateDirectory(pathToExtract);
 
             if (File.Exists($@"{directory}\ps3.cpk.66600")
                 && File.Exists($@"{directory}\ps3.cpk.66601")
                 && File.Exists($@"{directory}\ps3.cpk.66602")
                 && !File.Exists($@"{directory}\ps3.cpk"))
             {
-                Console.Write("[INFO] Combining ps3.cpk parts");
+                Utilities.ParallelLogger.Log("[INFO] Combining ps3.cpk parts");
                 ProcessStartInfo cmdInfo = new ProcessStartInfo
                 {
                     CreateNoWindow = true,
@@ -280,21 +242,15 @@ namespace AemulusModManager
                 process.WaitForExit();
             }
 
-            string[] dataFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_data.csv");
-            string[] ps3Files = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_ps3.csv");
+            string[] dataFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_data.csv");
+            string[] ps3Files = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_ps3.csv");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting data.cpk");
-            if (File.Exists($@"{directory}\data.cpk"))
-                CriFsUnpack($@"{directory}\data.cpk", pathToExtract, dataFiles);
-            else
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find data.cpk in {directory}.");
+            CriFsUnpack($@"{directory}\data.cpk", pathToExtract, dataFiles);
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting ps3.cpk");
-            if (File.Exists($@"{directory}\ps3.cpk"))
-                CriFsUnpack($@"{directory}\ps3.cpk", pathToExtract, ps3Files);
-            else
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find ps3.cpk in {directory}.");
-
+            CriFsUnpack($@"{directory}\ps3.cpk", pathToExtract, ps3Files);
+ 
             ExtractWantedFiles(pathToExtract);
 
             Utilities.ParallelLogger.Log($"[INFO] Finished unpacking base files!");
@@ -305,6 +261,7 @@ namespace AemulusModManager
         }
 
         // P5R PS4
+        // TODO: refactor this
         public static async Task UnpackP5RCPKs(string directory, string language, string version)
         {
             if (!Directory.Exists(directory))
@@ -312,8 +269,8 @@ namespace AemulusModManager
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {directory}. Please correct the file path.");
                 return;
             }
-            if (!File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_dataR.csv")
-                || !File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_ps4R.csv"))
+            if (!File.Exists($@"{Folders.FilteredCpkCsv}\filtered_dataR.csv")
+                || !File.Exists($@"{Folders.FilteredCpkCsv}\filtered_ps4R.csv"))
             {
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV files used for unpacking in Dependencies\FilteredCpkCsv");
                 return;
@@ -326,24 +283,18 @@ namespace AemulusModManager
             string pathToExtract = $@"{Folders.Original}\{Games.P5R}";
             Directory.CreateDirectory(pathToExtract);
 
-            string[] dataRFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_dataR.csv");
-            string[] ps4RFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_ps4R.csv");
+            string[] dataRFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_dataR.csv");
+            string[] ps4RFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_ps4R.csv");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting dataR.cpk");
-            if (File.Exists($@"{directory}\dataR.cpk"))
-                CriFsUnpack($@"{directory}\dataR.cpk", pathToExtract, dataRFiles);
-            else
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find dataR.cpk in {directory}.");
+            CriFsUnpack($@"{directory}\dataR.cpk", pathToExtract, dataRFiles);
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting ps4R.cpk");
-            if (File.Exists($@"{directory}\ps4R.cpk"))
-                CriFsUnpack($@"{directory}\ps4R.cpk", pathToExtract, ps4RFiles);
-            else
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find ps4R.cpk in {directory}.");
+            CriFsUnpack($@"{directory}\ps4R.cpk", pathToExtract, ps4RFiles);
 
             if (language != "English")
             {
-                string[] dataRLocalizedFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_dataR_Localized.csv");
+                string[] dataRLocalizedFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_dataR_Localized.csv");
                 var localizedCpk = String.Empty;
                 switch (language)
                 {
@@ -361,21 +312,16 @@ namespace AemulusModManager
                         break;
                 }
                 Utilities.ParallelLogger.Log($"[INFO] Extracting {localizedCpk}");
-                if (File.Exists($@"{directory}\{localizedCpk}"))
-                    CriFsUnpack($@"{directory}\{localizedCpk}", pathToExtract, dataRLocalizedFiles);
-                else
-                    Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {localizedCpk} in {directory}.");
+                CriFsUnpack($@"{directory}\{localizedCpk}", pathToExtract, dataRLocalizedFiles);
             }
 
             // Extract patch2R.cpk files
             if (version == ">= 1.02")
             {
-                string[] patch2RFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_patch2R.csv");
+                string[] patch2RFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_patch2R.csv");
                 Utilities.ParallelLogger.Log($"[INFO] Extracting patch2R.cpk");
-                if (File.Exists($@"{directory}\patch2R.cpk"))
-                    CriFsUnpack($@"{directory}\patch2R.cpk", pathToExtract, patch2RFiles);
-                else
-                    Utilities.ParallelLogger.Log($"[ERROR] Couldn't find patch2R.cpk in {directory}.");
+                CriFsUnpack($@"{directory}\patch2R.cpk", pathToExtract, patch2RFiles);
+
                 if (language != "English")
                 {
                     var patchSuffix = String.Empty;
@@ -394,12 +340,10 @@ namespace AemulusModManager
                             patchSuffix = "_S";
                             break;
                     }
-                    string[] patch2RLocalizedFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_patch2R{patchSuffix}.csv");
+                    string[] patch2RLocalizedFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_patch2R{patchSuffix}.csv");
+
                     Utilities.ParallelLogger.Log($"[INFO] Extracting patch2R{patchSuffix}.cpk");
-                    if (File.Exists($@"{directory}\patch2R{patchSuffix}.cpk"))
-                        CriFsUnpack($@"{directory}\patch2R{patchSuffix}.cpk", pathToExtract, patch2RLocalizedFiles);
-                    else
-                        Utilities.ParallelLogger.Log($"[ERROR] Couldn't find patch2R{patchSuffix}.cpk in {directory}.");
+                    CriFsUnpack($@"{directory}\patch2R{patchSuffix}.cpk", pathToExtract, patch2RLocalizedFiles);
                 }
             }
 
@@ -429,16 +373,10 @@ namespace AemulusModManager
             Directory.CreateDirectory(pathToExtract);
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting PATCH1.CPK");
-            if (File.Exists($@"{directory}\PATCH1.CPK"))
-                CriFsUnpack($@"{directory}\PATCH1.CPK", pathToExtract);
-            else
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find PATCH1.CPK in {directory}.");
+            CriFsUnpack($@"{directory}\PATCH1.CPK", pathToExtract);
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting ALL_USEU.CPK (This will take awhile)");
-            if (File.Exists($@"{directory}\ALL_USEU.CPK"))
-                CriFsUnpack($@"{directory}\ALL_USEU.CPK", pathToExtract);
-            else
-                Utilities.ParallelLogger.Log($"[ERROR] Couldn't find ALL_USEU.CPK in {directory}.");
+            CriFsUnpack($@"{directory}\ALL_USEU.CPK", pathToExtract);
 
             ExtractWantedFiles(pathToExtract);
 
@@ -457,7 +395,7 @@ namespace AemulusModManager
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {cpk}. Please correct the file path.");
                 return;
             }
-            if (!File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_p4gdata.csv"))
+            if (!File.Exists($@"{Folders.FilteredCpkCsv}\filtered_p4gdata.csv"))
             {
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV file used for unpacking in Dependencies\FilteredCpkCsv");
                 return;
@@ -470,17 +408,7 @@ namespace AemulusModManager
             string pathToExtract = $@"{Folders.Original}\{Games.P4Gvita}";
             Directory.CreateDirectory(pathToExtract);
 
-            if (!File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_p4gdata.csv"))
-            {
-                Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV file used for unpacking in Dependencies\FilteredCpkCsv");
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Mouse.OverrideCursor = null;
-                });
-                return;
-            }
-
-            string[] dataFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_p4gdata.csv");
+            string[] dataFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_p4gdata.csv");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting data.cpk");
             CriFsUnpack(cpk, pathToExtract, dataFiles);
@@ -503,7 +431,7 @@ namespace AemulusModManager
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {cpk}. Please correct the file path.");
                 return;
             }
-            if (!File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_data_pq2.csv"))
+            if (!File.Exists($@"{Folders.FilteredCpkCsv}\filtered_data_pq2.csv"))
             {
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV file used for unpacking in Dependencies\FilteredCpkCsv");
                 return;
@@ -516,7 +444,7 @@ namespace AemulusModManager
             string pathToExtract = $@"{Folders.Original}\{Games.PQ2}";
             Directory.CreateDirectory(pathToExtract);
 
-            string[] dataFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_data_pq2.csv");
+            string[] dataFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_data_pq2.csv");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting data.cpk");
             CriFsUnpack(cpk, pathToExtract, dataFiles);
@@ -539,7 +467,7 @@ namespace AemulusModManager
                 Utilities.ParallelLogger.Log($"[ERROR] Couldn't find {cpk}. Please correct the file path.");
                 return;
             }
-            if (!File.Exists($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_data_pq.csv"))
+            if (!File.Exists($@"{Folders.FilteredCpkCsv}\filtered_data_pq.csv"))
             {
                 Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find CSV file used for unpacking in Dependencies\FilteredCpkCsv");
                 return;
@@ -550,9 +478,7 @@ namespace AemulusModManager
             });
 
             string pathToExtract = $@"{Folders.Original}\{Games.PQ}";
-            Directory.CreateDirectory(pathToExtract);
-
-            string[] dataFiles = File.ReadAllLines($@"{Folders.Dependencies}\FilteredCpkCsv\filtered_data_pq.csv");
+            string[] dataFiles = File.ReadAllLines($@"{Folders.FilteredCpkCsv}\filtered_data_pq.csv");
 
             Utilities.ParallelLogger.Log($"[INFO] Extracting data.cpk");
             CriFsUnpack(cpk, pathToExtract, dataFiles);
@@ -567,22 +493,30 @@ namespace AemulusModManager
             });
         }
 
-        private static void CriFsUnpack(string cpk, string dir, string[] fileList = null)
+        private static void CriFsUnpack(string cpkPath, string outputPath, string[] fileList = null)
         {
-            using var fileStream = new FileStream(cpk, FileMode.Open);
+            if (!File.Exists(cpkPath))
+            {
+                Utilities.ParallelLogger.Log($@"[ERROR] Error trying to unpack. Couldn't find {cpkPath}.");
+                return;
+            }
+            if (!Directory.Exists(outputPath))
+                Directory.CreateDirectory(outputPath);
+
+            using var fileStream = new FileStream(cpkPath, FileMode.Open);
             using var reader = CriFsLib.Instance.CreateCpkReader(fileStream, true);
             var files = reader.GetFiles();
             fileStream.Close();
 
             bool extractAll = fileList == null;
-            using var extractor = CriFsLib.Instance.CreateBatchExtractor<FileToExtract>(cpk, P5RCrypto.DecryptionFunction);
+            using var extractor = CriFsLib.Instance.CreateBatchExtractor<FileToExtract>(cpkPath, P5RCrypto.DecryptionFunction);
             for (int x = 0; x < files.Length; x++)
             {
                 string filePath = string.IsNullOrEmpty(files[x].Directory) ? files[x].FileName : $@"{files[x].Directory}/{files[x].FileName}";
 
                 if (extractAll || fileList.Contains(filePath))
                 {
-                    extractor.QueueItem(new FileToExtract(Path.Combine(dir, filePath), files[x]));
+                    extractor.QueueItem(new FileToExtract(Path.Combine(outputPath, filePath), files[x]));
                     Utilities.ParallelLogger.Log($@"[INFO] Extracting {filePath}");
                 }
             }
@@ -590,6 +524,7 @@ namespace AemulusModManager
             extractor.WaitForCompletion();
             ArrayRental.Reset();
         }
+
         private static void ExtractWantedFiles(string directory)
         {
             if (!Directory.Exists(directory))

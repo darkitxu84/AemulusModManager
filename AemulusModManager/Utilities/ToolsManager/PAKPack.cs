@@ -1,11 +1,10 @@
-﻿using AtlusFileSystemLibrary;
-using AtlusFileSystemLibrary.Common.IO;
+﻿using AtlusFileSystemLibrary.Common.IO;
 using AtlusFileSystemLibrary.FileSystems.PAK;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+/*
 internal abstract class AddOrReplaceCommand : ICommand
 {
     protected static bool Execute(string[] args, bool allowAdd)
@@ -90,6 +89,7 @@ internal abstract class AddOrReplaceCommand : ICommand
 
         return true;
     }
+*/
 
 namespace AemulusModManager.Utilities.ToolsManager
 {
@@ -151,7 +151,7 @@ namespace AemulusModManager.Utilities.ToolsManager
             }
         }
 
-        public static void Replace(string pakInputPath, string unk, string outputPath = null)
+        public static void Replace(string pakInputPath, string pathToFile, string outputPath = null)
         {
             outputPath ??= pakInputPath;
             Directory.CreateDirectory(outputPath);

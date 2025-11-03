@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,26 +10,19 @@ namespace AemulusModManager.Utilities.ToolsManager
 {
     public static class DecEboot
     {
-        public static void Decrypt(string input, string output)
+        const string ToolName = "DecEboot";
+        public static bool Decrypt(string input, string output)
         {
+            if (!File.Exists(input))
+            {
+                ParallelLogger.Log($"[ERROR] {ToolName}: Error trying to decrypt. Couldn't find {input}.");
+                return false;
+            }
+
             string decEbootDir = $@"{Folders.Dependencies}\DecEboot\deceboot.exe";
 
-            ProcessStartInfo ebootDecoder = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                FileName = decEbootDir,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = $"\"{input}\" \"{output}}\""
-            };
-
-            Utilities.ParallelLogger.Log($"[INFO] Decrypting EBOOT.BIN");
-            using (Process process = new Process())
-            {
-                process.StartInfo = ebootDecoder;
-                process.Start();
-                process.WaitForExit();
-            }
+            Utilities.ParallelLogger.Log($"[INFO] Decrypting EBOOT.BIN in {input}...");
+            return ExternalToolRunner.Execute(ToolName, decEbootDir, $"\"{input}\" \"{output}\"");
         }
     }
 }

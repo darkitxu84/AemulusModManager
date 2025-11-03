@@ -6,6 +6,8 @@ namespace AemulusModManager.Utilities.ToolsManager
 {
     public static class ZipUtils
     {
+        const string ToolName = "7zip";
+
         // use 7Zip to extract 
         public static bool Extract(string filePath, string outputPath, string filter = "")
         {
@@ -13,38 +15,12 @@ namespace AemulusModManager.Utilities.ToolsManager
 
             if (!File.Exists(filePath))
             {
-                ParallelLogger.Log($"[ERROR] Couldn't find {filePath}.");
-                return false;
-            }
-            if (!File.Exists(_7zDir))
-            {
-                ParallelLogger.Log($"[ERROR] Couldn't find 7-Zip at {_7zDir}. Please check if it was blocked by your anti-virus");
+                ParallelLogger.Log($"[ERROR] {ToolName}: Error trying to unzip. Couldn't find {filePath}.");
                 return false;
             }
 
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = _7zDir,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                Arguments = $"x -y -bsp1 \"{filePath}\" -o\"{outputPath}\" {filter}"
-            };
-
-            using Process process = new Process() { StartInfo = startInfo };
-            process.Start();
-
-            while (!process.StandardOutput.EndOfStream)
-            {
-                string line = process.StandardOutput.ReadLine();
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-                ParallelLogger.Log($"[INFO] 7zip: {line}");
-            }
-            process.WaitForExit();
-
-            return true;
+            string args = $"x -y -bsp1 \"{filePath}\" -o\"{outputPath}\" {filter}";
+            return ExternalToolRunner.Execute(ToolName, _7zDir, args, handleInput: true);
         }
     }
 }

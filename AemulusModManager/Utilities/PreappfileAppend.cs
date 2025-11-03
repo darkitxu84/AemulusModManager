@@ -24,6 +24,7 @@ namespace AemulusModManager
 
     public static class PreappfileAppend
     {
+        // todo: nuke this function and use ToolsManager/Preappfile instead
         public static void RunCommand(string inputPath, string outputPath = ".", string glob = null)
         {
             string preappfileAppendDir = $@"{Folders.Dependencies}\Preappfile\preappfile.exe";
@@ -50,6 +51,7 @@ namespace AemulusModManager
             process.WaitForExit();
         }
 
+        // todo: nuke this function and use ToolsManager/Preappfile instead
         public static void RunCommand(string inputPath, AppendInfo appendInfo, string outputPath = ".", string glob = null)
         {
             string preappfileAppendDir = $@"{Folders.Dependencies}\Preappfile\preappfile.exe";
