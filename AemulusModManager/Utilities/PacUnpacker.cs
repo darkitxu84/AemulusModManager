@@ -116,8 +116,7 @@ namespace AemulusModManager
             Utilities.ParallelLogger.Log("[INFO] Unpacking extracted files");
             ExtractWantedFiles($@"{pathToExtract}\data");
 
-            if (Directory.Exists($@"{pathToExtract}\PSP_GAME"))
-                Directory.Delete($@"{pathToExtract}\PSP_GAME", true);
+            PathUtils.DeleteIfExists($@"{pathToExtract}\PSP_GAME");
 
             Utilities.ParallelLogger.Log("[INFO] Finished unpacking base files!");
             Application.Current.Dispatcher.Invoke(() =>

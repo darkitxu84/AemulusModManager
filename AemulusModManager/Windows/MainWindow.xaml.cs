@@ -2187,10 +2187,15 @@ namespace AemulusModManager
                 {
                     if (m.enabled)
                     {
-                        packages.Add($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Packages\{game}\{m.path}");
+                        string packageFolder = $@"{Folders.Packages}\{game}\{m.path}";
+                        packages.Add(packageFolder);
                         Utilities.ParallelLogger.Log($@"[INFO] Using {m.path} in loadout");
-                        if (game == "Persona 4 Golden" && (Directory.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Packages\{game}\{m.path}\{Path.GetFileNameWithoutExtension(cpkLang)}")
-                            || Directory.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Packages\{game}\{m.path}\movie") || Directory.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Packages\{game}\{m.path}\preappfile")) && !useCpk)
+
+                        if (game == Games.P4G
+                            && (Directory.Exists($@"{packageFolder}\{Path.GetFileNameWithoutExtension(cpkLang)}")
+                            || Directory.Exists($@"{packageFolder}\movie") 
+                            || Directory.Exists($@"{packageFolder}\preappfile")) 
+                            && !useCpk)
                         {
                             Utilities.ParallelLogger.Log($"[WARNING] {m.path} is using CPK folder paths, setting Use CPK Structure to true");
                             useCpk = true;

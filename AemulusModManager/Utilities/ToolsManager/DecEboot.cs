@@ -5,24 +5,30 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace AemulusModManager.Utilities.ToolsManager
 {
     public static class DecEboot
     {
-        const string ToolName = "DecEboot";
+        private const string Name = "DecEboot";
+        private readonly static string Dir = $@"{Folders.Dependencies}\DecEboot";
+
+        /// <summary>
+        /// Decrypt an PSP EBOOT.BIN file with deceboot.exe
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
         public static bool Decrypt(string input, string output)
         {
-            if (!File.Exists(input))
-            {
-                ParallelLogger.Log($"[ERROR] {ToolName}: Error trying to decrypt. Couldn't find {input}.");
+            if (!ToolManager.IsValidInput(input, Name, "decrypt"))
                 return false;
-            }
-
-            string decEbootDir = $@"{Folders.Dependencies}\DecEboot\deceboot.exe";
+            
+            string decEbootExe = $@"{Dir}\deceboot.exe";
 
             Utilities.ParallelLogger.Log($"[INFO] Decrypting EBOOT.BIN in {input}...");
-            return ExternalToolRunner.Execute(ToolName, decEbootDir, $"\"{input}\" \"{output}\"");
+            return ToolManager.Execute(Name, decEbootExe, $"\"{input}\" \"{output}\"");
         }
     }
 }

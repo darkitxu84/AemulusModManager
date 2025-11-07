@@ -1,22 +1,24 @@
-﻿using AtlusScriptLibrary.FlowScriptLanguage.Syntax;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AemulusModManager.Utilities.ToolsManager
 {
     // there're generic validations and logic that can be extracted here
-    public static class ExternalToolRunner
+    public static class ToolManager
     {
+        /// <summary>
+        /// Executes an external app with given arguments
+        /// </summary>
+        /// <param name="toolName"></param>
+        /// <param name="executablePath"></param>
+        /// <param name="args"></param>
+        /// <param name="handleInput"></param>
+        /// <returns></returns>
         public static bool Execute(string toolName, string executablePath, string args, bool handleInput = false)
         {
             if (!File.Exists(executablePath))
             {
-                ParallelLogger.Log($"[ERROR] Couldn't find {toolName} at {executablePath}. Check antivirus exclusions.");
+                ParallelLogger.Log($"[ERROR] {toolName}: Couldn't find {toolName} at {executablePath}. Check antivirus exclusions.");
                 return false;
             }
 
@@ -47,5 +49,17 @@ namespace AemulusModManager.Utilities.ToolsManager
 
             return true;
         }
+
+        public static bool IsValidInput(string input, string toolName, string action)
+        {
+            if (!File.Exists(input) || !Directory.Exists(input))
+            {
+                ParallelLogger.Log($"[ERROR] {toolName}: Error trying to {action}. Couldn't find {input}.");
+                return false;
+            }
+
+            return true;
+        }
     }
+
 }

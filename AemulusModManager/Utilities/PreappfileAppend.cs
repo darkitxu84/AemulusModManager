@@ -1,83 +1,16 @@
 ﻿using AemulusModManager.Utilities;
+using AemulusModManager.Utilities.ToolsManager;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using Path = System.IO.Path;
 
 namespace AemulusModManager
 {
-    public readonly struct AppendInfo
-    {
-        public AppendInfo(int index, string filePath)
-        {
-            Index = index;
-            FilePath = filePath;
-        }
-        public int Index { get; }
-        public string FilePath { get; }
-    }
-
     public static class PreappfileAppend
     {
-        // todo: nuke this function and use ToolsManager/Preappfile instead
-        public static void RunCommand(string inputPath, string outputPath = ".", string glob = null)
-        {
-            string preappfileAppendDir = $@"{Folders.Dependencies}\Preappfile\preappfile.exe";
-
-            if (!File.Exists(preappfileAppendDir))
-            {
-                Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find Dependencies\preappfile\preappfile.exe. Please check if it was blocked by your anti-virus.");
-                return;
-            }
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                FileName = preappfileAppendDir,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                Arguments = $"-i \"{inputPath}\" -o \"{outputPath}\" " + (glob != null ? $"--unpack-filter {glob}" : "")
-            };
-
-            using Process process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-            process.WaitForExit();
-        }
-
-        // todo: nuke this function and use ToolsManager/Preappfile instead
-        public static void RunCommand(string inputPath, AppendInfo appendInfo, string outputPath = ".", string glob = null)
-        {
-            string preappfileAppendDir = $@"{Folders.Dependencies}\Preappfile\preappfile.exe";
-
-            if (!File.Exists(preappfileAppendDir))
-            {
-                Utilities.ParallelLogger.Log($@"[ERROR] Couldn't find Dependencies\preappfile\preappfile.exe. Please check if it was blocked by your anti-virus.");
-                return;
-            }
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                FileName = preappfileAppendDir,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                Arguments = $"-i \"{inputPath}\" -o \"{outputPath}\" -a \"{appendInfo.FilePath}\" --pac-index {appendInfo.Index}" + (glob != null ? $"--unpack-filter {glob}" : "")
-            };
-
-            using Process process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-            process.WaitForExit();
-        }
-
         public static string GetChecksumString(string filePath)
         {
             string checksumString = null;
@@ -121,20 +54,17 @@ namespace AemulusModManager
 
             if (File.Exists($"{data07Path}.pac"))
             {
-                RunCommand($"{data07Path}.pac");
+                Preappfile.Unpack($"{data07Path}.pac");
                 validated = ValidatePath(path, Path.GetFileNameWithoutExtension(cpkLang), data07Path);
-
-                if (Directory.Exists(data07Path))
-                    Directory.Delete(data07Path, true);
+                PathUtils.DeleteIfExists(data07Path);
             }
             if (File.Exists($"{movie03Path}.pac"))
             {
-                RunCommand(movie03Path);
+                Preappfile.Unpack(movie03Path);
                 validated = ValidatePath(path, "movie", movie03Path);
-
-                if (Directory.Exists($@"{path}\movie00003"))
-                    Directory.Delete($@"{path}\movie00003", true);
+                PathUtils.DeleteIfExists(movie03Path);
             }
+            // this is potentially dangerous, we can enter an infinite loop if something is really broken
             if (!validated)
             {
                 Utilities.ParallelLogger.Log($"[WARNING] Not all appended files were validated, trying again");
@@ -154,57 +84,39 @@ namespace AemulusModManager
                 return;
             }
 
-            // Backup cpk if not backed up already
-            if (!File.Exists($@"{originalP4GFolder}\{cpkLang}"))
-            {
-                Utilities.ParallelLogger.Log($@"[INFO] Backing up {cpkLang}.cpk");
-                File.Copy($@"{path}\{cpkLang}", $@"Original\{Games.P4G}\{cpkLang}");
-            }
-            // Copy original cpk back if different
-            if (GetChecksumString($@"{originalP4GFolder}\{cpkLang}") != GetChecksumString($@"{path}\{cpkLang}"))
-            {
-                Utilities.ParallelLogger.Log($@"[INFO] Reverting {cpkLang} back to original");
-                File.Copy($@"{originalP4GFolder}\{cpkLang}", $@"{path}\{cpkLang}", true);
-            }
-            if (!File.Exists($@"{originalP4GFolder}\movie.cpk"))
-            {
-                Utilities.ParallelLogger.Log($@"[INFO] Backing up movie.cpk");
-                File.Copy($@"{path}\movie.cpk", $@"{originalP4GFolder}\movie.cpk");
-            }
-            // Copy original cpk back if different
-            if (GetChecksumString($@"{originalP4GFolder}\movie.cpk") != GetChecksumString($@"{path}\movie.cpk"))
-            {
-                Utilities.ParallelLogger.Log($@"[INFO] Reverting movie.cpk back to original");
-                File.Copy($@"{originalP4GFolder}\movie.cpk", $@"{path}\movie.cpk", true);
-            }
             // Delete modified pacs
-            if (File.Exists($@"{path}\data00007.pac"))
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Deleting data00007.pac");
-                File.Delete($@"{path}\data00007.pac");
-            }
-            if (File.Exists($@"{path}\movie00003.pac"))
-            {
-                Utilities.ParallelLogger.Log($"[INFO] Deleting movie00003.pac");
-                File.Delete($@"{path}\movie00003.pac");
-            }
+            PathUtils.DeleteIfExists($@"{path}\data00007.pac");
+            PathUtils.DeleteIfExists($@"{path}\movie00003.pac");
 
-            string inputPath = $@"{path}\mods\preappfile\{Path.GetFileNameWithoutExtension(cpkLang)}";
-            string outputPath = $@"{path}\{cpkLang}";
-            var appendInfo = new AppendInfo(7, outputPath);
-            if (Directory.Exists(inputPath))
+            var cpks = new List<(string Filename, int AppendIndex)>
             {
-                Utilities.ParallelLogger.Log($@"[INFO] Appending to {cpkLang}");
-                RunCommand(inputPath, appendInfo, outputPath);
-            }
+                (cpkLang, 7),
+                ("movie.cpk", 3)
+            };
 
-            inputPath = $@"{path}\mods\preappfile\movie";
-            outputPath = $@"{path}\movie.cpk";
-            appendInfo = new AppendInfo(3, outputPath);
-            if (Directory.Exists(inputPath))
+            foreach (var (Filename, AppendIndex) in cpks)
             {
-                Utilities.ParallelLogger.Log($@"[INFO] Appending to movie");
-                RunCommand(inputPath, appendInfo, outputPath);
+                // Backup cpk if not backed up already
+                if (!File.Exists($@"{originalP4GFolder}\{Filename}"))
+                {
+                    Utilities.ParallelLogger.Log($@"[INFO] Backing up {Filename}");
+                    File.Copy($@"{path}\{Filename}", $@"{originalP4GFolder}\{Filename}");
+                }
+                // Copy original cpk back if different
+                if (GetChecksumString($@"{originalP4GFolder}\{Filename}") != GetChecksumString($@"{path}\{Filename}"))
+                {
+                    Utilities.ParallelLogger.Log($@"[INFO] Reverting {Filename} back to original");
+                    File.Copy($@"{originalP4GFolder}\{Filename}", $@"{path}\{Filename}", true);
+                }
+
+                string input = $@"{path}\mods\preappfile\{Path.GetFileNameWithoutExtension(Filename)}";
+                string output = $@"{path}\{Filename}";
+                var appendInfo = new AppendInfo(AppendIndex, output);
+                if (Directory.Exists(input))
+                {
+                    Utilities.ParallelLogger.Log($@"[INFO] Appending to {Filename}");
+                    Preappfile.Append(input, appendInfo, output);
+                }
             }
         }
     }

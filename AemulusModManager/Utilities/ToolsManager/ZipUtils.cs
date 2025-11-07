@@ -6,21 +6,19 @@ namespace AemulusModManager.Utilities.ToolsManager
 {
     public static class ZipUtils
     {
-        const string ToolName = "7zip";
+        private const string Name = "7zip";
+        private readonly static string Dir = $@"{Folders.Dependencies}\7z";
 
         // use 7Zip to extract 
         public static bool Extract(string filePath, string outputPath, string filter = "")
         {
-            string _7zDir = @$"{Folders.Dependencies}\7z\7z.exe";
-
-            if (!File.Exists(filePath))
-            {
-                ParallelLogger.Log($"[ERROR] {ToolName}: Error trying to unzip. Couldn't find {filePath}.");
+            if (!ToolManager.IsValidInput(filePath, Name, "unzip"))
                 return false;
-            }
+
+            string _7zExe = @$"{Dir}\7z.exe";
 
             string args = $"x -y -bsp1 \"{filePath}\" -o\"{outputPath}\" {filter}";
-            return ExternalToolRunner.Execute(ToolName, _7zDir, args, handleInput: true);
+            return ToolManager.Execute(Name, _7zExe, args, handleInput: true);
         }
     }
 }
