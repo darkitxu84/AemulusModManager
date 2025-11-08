@@ -40,12 +40,12 @@ namespace AemulusModManager.Utilities.KT
 
         public static void Backup(string modPath)
         {
-            Directory.CreateDirectory($@"{Folders.Original}\{Games.P5S}\motor_rsc\data");
+            Directory.CreateDirectory($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data");
             foreach (var file in original_data)
             {
                 ParallelLogger.Log($@"[INFO] Backing up {modPath}\data\{file}");
                 if (File.Exists($@"{modPath}\data\{file}"))
-                    File.Copy($@"{modPath}\data\{file}", $@"{Folders.Original}\{Games.P5S}\motor_rsc\data\{file}", true);
+                    File.Copy($@"{modPath}\data\{file}", $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{file}", true);
                 else
                     ParallelLogger.Log($@"[ERROR] Couldn't find {modPath}\data\{file}");
             }
@@ -83,7 +83,7 @@ namespace AemulusModManager.Utilities.KT
             Parallel.ForEach(Directory.GetFiles($@"{modPath}\data"), file =>
             {
                 // Delete if not found in Original
-                if (!File.Exists($@"{Folders.Original}\{Games.P5S}\motor_rsc\data\{Path.GetFileName(file)}"))
+                if (!File.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{Path.GetFileName(file)}"))
                 {
                     ParallelLogger.Log($@"[INFO] Deleting {file}...");
                     try
@@ -96,13 +96,13 @@ namespace AemulusModManager.Utilities.KT
                     }
                 }
                 // Overwrite if file size/date modified are different
-                else if (new FileInfo(file).Length != new FileInfo($@"{Folders.Original}\{Games.P5S}\motor_rsc\data\{Path.GetFileName(file)}").Length
-                    || File.GetLastWriteTime(file) != File.GetLastWriteTime($@"{Folders.Original}\{Games.P5S} \motor_rsc\data\{Path.GetFileName(file)}"))
+                else if (new FileInfo(file).Length != new FileInfo($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{Path.GetFileName(file)}").Length
+                    || File.GetLastWriteTime(file) != File.GetLastWriteTime($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{Path.GetFileName(file)}"))
                 {
                     ParallelLogger.Log($@"[INFO] Reverting {file} to original...");
                     try
                     {
-                        File.Copy($@"{Folders.Original}\{Games.P5S} \motor_rsc\data\{Path.GetFileName(file)}", file, true);
+                        File.Copy($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{Path.GetFileName(file)}", file, true);
                     }
                     catch (Exception e)
                     {
@@ -114,12 +114,12 @@ namespace AemulusModManager.Utilities.KT
             // Copy over original files that may have accidentally been deleted
             foreach (var file in original_data)
             {
-                if (!File.Exists($@"{modPath}\data\{file}") && File.Exists($@"{Folders.Original}\{Games.P5S}\motor_rsc\data\{file}"))
+                if (!File.Exists($@"{modPath}\data\{file}") && File.Exists($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{file}"))
                 {
                     ParallelLogger.Log($"[INFO] Restoring {file}...");
                     try
                     {
-                        File.Copy($@"{Folders.Original}\{Games.P5S}\motor_rsc\data\{file}", $@"{modPath}\data\{file}", true);
+                        File.Copy($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\data\{file}", $@"{modPath}\data\{file}", true);
                     }
                     catch (Exception e)
                     {
@@ -134,7 +134,7 @@ namespace AemulusModManager.Utilities.KT
                 ParallelLogger.Log($@"[INFO] Reverting {file} to original...");
                 try
                 {
-                    File.Copy($@"{Folders.Original}\{Games.P5S}\motor_rsc\{Path.GetFileName(file)}", file, true);
+                    File.Copy($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\Original\Persona 5 Strikers\motor_rsc\{Path.GetFileName(file)}", file, true);
                 }
                 catch (Exception e)
                 {
@@ -143,7 +143,7 @@ namespace AemulusModManager.Utilities.KT
             }
 
         }
-        public static void Merge(List<string> ModList, string outputDir)
+        public static void Merge(List<string> ModList, string modDir)
         {
             foreach (var mod in ModList)
             {
@@ -153,7 +153,6 @@ namespace AemulusModManager.Utilities.KT
                     continue;
                 }
 
-                // handle prebuild scripts in ToolManager?
                 // Run prebuild.bat
                 if (File.Exists($@"{mod}\prebuild.bat") && new FileInfo($@"{mod}\prebuild.bat").Length > 0)
                 {
@@ -189,10 +188,10 @@ namespace AemulusModManager.Utilities.KT
                     string fileName = Path.GetFileName(file);
                     if (Path.GetExtension(file).ToLower() != ".file")
                         fileName = Hash(Path.GetFileName(file));
-                    ParallelLogger.Log($@"[INFO] Copying over {file} to {outputDir}\data\{fileName}");
+                    ParallelLogger.Log($@"[INFO] Copying over {file} to {modDir}\data\{fileName}");
                     try
                     {
-                        File.Copy(file, $@"{outputDir}\data\{fileName.ToLower()}", true);
+                        File.Copy(file, $@"{modDir}\data\{fileName.ToLower()}", true);
                     }
                     catch (Exception e)
                     {
